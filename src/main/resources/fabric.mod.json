@@ -1,0 +1,46 @@
+{
+	"schemaVersion": 1,
+	"id": "wynntracker",
+	"version": "${version}",
+	"name": "WynnTracker",
+	"description": "A Mod used to report Wynncraft Chat Data to a Remote Server",
+	"authors": [
+		"wiji"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/wynntracker/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.wiji.wynntracker.WynnTracker"
+		],
+		"client": [
+			"dev.wiji.wynntracker.WynnTrackerClient"
+		],
+		"modmenu": [
+			"dev.wiji.wynntracker.controllers.Config"
+		]
+	},
+	"mixins": [
+		"wynntracker.mixins.json",
+		{
+			"config": "wynntracker.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.2",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*",
+		"cloth-config": ">=12.0.108",
+		"modmenu": ">=8.0.0"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

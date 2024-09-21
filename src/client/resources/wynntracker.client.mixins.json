@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "dev.wiji.wynntracker.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ChatMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

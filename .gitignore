@@ -1,0 +1,48 @@
+# gradle
+
+.gradle/
+build/
+out/
+classes/
+gradlew.bat
+gradlew
+.gitattributes
+gradle-wrapper.jar
+gradle-wrapper.properties
+gradle-daemon-*.properties
+
+
+# eclipse
+
+*.launch
+
+# idea
+
+.github/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# macos
+
+*.DS_Store
+
+# fabric
+
+run/
+
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
