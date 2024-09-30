@@ -24,9 +24,9 @@ public class RaidReport {
 
 	public static void parseChatMessage(Text message) {
 		String unformattedMessage = Misc.getUnformattedString(message.getString());
-		Matcher matcher = Pattern.compile("([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), and" +
-				" ([A-Za-z0-9_ ]+?) finished (.+?) and claimed (\\d+)x Aspects, (\\d+)x Emeralds, and \\+(\\d+) " +
-				"Seasonal Rating", Pattern.MULTILINE).matcher(unformattedMessage);
+		Matcher matcher = Pattern.compile("([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), and " +
+				"([A-Za-z0-9_ ]+?) finished (.+?) and claimed (\\d+)x Aspects, (\\d+)x Emeralds, .(.+?m)" +
+				" Guild Experience, and \\+(\\d+) Seasonal Rating", Pattern.MULTILINE).matcher(unformattedMessage);
 
 		HashMap<String, List<String>> nameMap = new HashMap<>();
 		GetRealName.createRealNameMap(message, nameMap);
@@ -47,13 +47,14 @@ public class RaidReport {
 		String raidString = matcher.group(5);
 		String aspects = matcher.group(6);
 		String emeralds = matcher.group(7);
-		String sr = matcher.group(8);
+		String xp = matcher.group(8);
+		String sr = matcher.group(9);
 
 
 		RaidType raidType = RaidType.getRaidType(raidString);
 		UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
 
-		Raid raid = new Raid(raidType, new String[]{user1, user2, user3, user4}, reporterID);
+		Raid raid = new Raid(raidType, new String[]{user1, user2, user3, user4}, reporterID, Integer.parseInt(sr), Misc.convertToInt(xp));
 
 		new Thread(() -> reportRaid(raid)).start();
 	}
@@ -68,6 +69,8 @@ public class RaidReport {
 		parameters.put("raid", String.valueOf(raid.raidType.id));
 		parameters.put("reporter", raid.reporter.toString());
 		parameters.put("token", Authentication.token);
+		parameters.put("seasonRating", String.valueOf(raid.seasonRating));
+		parameters.put("guildXP", String.valueOf(raid.guildXP));
 
 		for(int i = 0; i < raid.players.length; i++) parameters.put("player" + (i + 1), raid.players[i]);
 
