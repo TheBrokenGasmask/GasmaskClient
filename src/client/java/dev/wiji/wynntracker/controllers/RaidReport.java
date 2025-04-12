@@ -30,6 +30,13 @@ public class RaidReport {
 
 		HashMap<String, List<String>> nameMap = new HashMap<>();
 		GetRealName.createRealNameMap(message, nameMap);
+
+		if (!matcher.matches()) {
+			matcher = Pattern.compile("([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), and " +
+					"([A-Za-z0-9_ ]+?) finished (.+?) and claimed (\\d+)x Aspects, (\\d+)x Emeralds, and .(.+?m)" +
+					" Guild Experience", Pattern.MULTILINE).matcher(unformattedMessage);
+		};
+
 		if (!matcher.matches()) return;
 
 		String user1 = matcher.group(1);
@@ -48,8 +55,7 @@ public class RaidReport {
 		String aspects = matcher.group(6);
 		String emeralds = matcher.group(7);
 		String xp = matcher.group(8);
-		String sr = matcher.group(9);
-
+		String sr = matcher.groupCount() >= 9 ? matcher.group(9) : "0";
 
 		RaidType raidType = RaidType.getRaidType(raidString);
 		UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
