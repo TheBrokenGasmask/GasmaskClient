@@ -56,6 +56,10 @@ public class Authentication {
 			conn.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
+
+			MinecraftClient mc = MinecraftClient.getInstance();
+			if(mc.player == null) return null;
+			mc.player.sendMessage(Text.literal("§cFailed to get token from server. Please try entering a valid URL."), false);
 		}
 		return token;
 	}

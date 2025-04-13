@@ -48,7 +48,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 
 			try {
 				URL url = new URL(urlBuilder.toString());
-				System.out.println("Sending raid report to: " + urlBuilder);
+				System.out.println("Sending toggle request to: " + urlBuilder);
 
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("GET");
@@ -56,8 +56,8 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 				int responseCode = conn.getResponseCode();
 				String responseMessage = conn.getResponseMessage();
 
-				System.out.println("Sending raid response code: " + responseCode);
-				System.out.println("Sending raid response message: " + responseMessage);
+				System.out.println("Sending toggle response code: " + responseCode);
+				System.out.println("Sending toggle response message: " + responseMessage);
 
 				if (responseCode < 200 || responseCode > 299) {
 					BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
@@ -86,6 +86,8 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 				conn.disconnect();
 			} catch (Exception e) {
 				e.printStackTrace();
+
+				sendErrorMessage(source.getSource(), "Failed to toggle aspects: " + e.getMessage());
 			}
 
 		}).start();
