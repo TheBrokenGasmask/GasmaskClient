@@ -8,6 +8,8 @@ import dev.wiji.wynntracker.objects.ClientCommand;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,10 +17,11 @@ import java.util.List;
 public class WynnTrackerClient implements ClientModInitializer {
 	public static Config.ConfigData config_data;
 	private static final List<ClientCommand> commands = new ArrayList<>();
-
+	private static final Logger LOGGER = LoggerFactory.getLogger("WynnTracker");
 
 	@Override
 	public void onInitializeClient() {
+
 		config_data = Config.getConfigData();
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
@@ -41,5 +44,9 @@ public class WynnTrackerClient implements ClientModInitializer {
 
 	public static List<ClientCommand> getCommands() {
 		return commands;
+	}
+
+	public static void debug(String message) {
+		LOGGER.info("[DEBUG] " + message);
 	}
 }

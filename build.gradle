@@ -41,6 +41,7 @@ dependencies {
 
 	modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
 	modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+	modImplementation files("libs/wynntils-3.2.2-fabric+MC-1.21.4.jar")
 }
 
 processResources {
