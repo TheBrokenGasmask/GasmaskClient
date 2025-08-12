@@ -5,7 +5,8 @@
 	"client": [
 		"ChatMixin",
 		"ChatHudMixin",
-		"RenderUtilsMixin"
+		"RenderUtilsMixin",
+		"MatchPatternMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
