@@ -6,6 +6,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +27,9 @@ public class GuildChatModifier {
             "strategist", 0xED9600,
             "captain", 0xFAE100,
             "recruiter", 0x04D400,
-            "recruit", 0x00F0DC
+            "recruit", 0x00F0DC,
+            "officer", 0x00F0DC,
+            "advisor", 0xED9600
     );
 
     public static final Map<String, Integer> NAME_COLORS = Map.of(
@@ -35,12 +38,41 @@ public class GuildChatModifier {
             "strategist", 0xBE790E,
             "captain", 0xC8B414,
             "recruiter", 0x1E9514,
-            "recruit", 0x21A89B
+            "recruit", 0x21A89B,
+            "officer", 0x21A89B,
+            "advisor", 0xBE790E
     );
+
+    public static final Map<String, String> CUSTOM_RANK_BACKGROUND = Map.of(
+            "officer", "\uE060\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE034\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD6",
+            "advisor", "\uE060\uDAFF\uDFFF\uE030\uDAFF\uDFFF\uE033\uDAFF\uDFFF\uE045\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE042\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD1" // this is broken ill fix this later
+    );
+
+    public static final Map<String, String> CUSTOM_RANK_FOREGROUND = Map.of(
+            "officer", "\uE00E\uE005\uE005\uE008\uE002\uE004\uE011\uDB00\uDC02",
+            "advisor", "\uE000\uE003\uE015\uE008\uE012\uE00E\uE011\uDB00\uDC02"
+    );
+
+    private static String isCustomRank(String name){
+        if (Objects.equals(name, "Iron")){
+            return "advisor";
+        }
+        else return null;
+    }
 
     public static Text modifyGuildMessage(Text originalMessage) {
         if (originalMessage.getSiblings().size() < 3) {
             return originalMessage;
+        }
+
+        String username = getUsername(originalMessage);
+        if (username == null) {
+            return originalMessage;
+        }
+
+        String customRank = isCustomRank(username);
+        if (customRank != null) {
+            return modifyCustomRankChat(originalMessage, customRank);
         }
 
         String rankText = originalMessage.getSiblings().get(2).getString();
@@ -54,11 +86,6 @@ public class GuildChatModifier {
         }
 
         if (matchedRank == null) {
-            return originalMessage;
-        }
-
-        String username = getUsername(originalMessage);
-        if (username == null) {
             return originalMessage;
         }
 
@@ -107,6 +134,41 @@ public class GuildChatModifier {
         }, Style.EMPTY);
 
         return username[0];
+    }
+
+    private static Text modifyCustomRankChat(Text originalMessage, String customRank) {
+        Integer rankColorValue = RANK_COLORS.get(customRank);
+        Integer nameColorValue = NAME_COLORS.get(customRank);
+        String customBackground = CUSTOM_RANK_BACKGROUND.get(customRank);
+        String customForeground = CUSTOM_RANK_FOREGROUND.get(customRank);
+
+        MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
+
+        for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
+            Text sibling = originalMessage.getSiblings().get(i);
+
+            if (i == 2) {
+                Style originalStyle = sibling.getStyle();
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
+                MutableText modifiedSibling = Text.literal(customBackground).setStyle(newStyle);
+                modifiedMessage.append(modifiedSibling);
+
+            } else if (i == 3) {
+                Style originalStyle = sibling.getStyle();
+                MutableText modifiedSibling = Text.literal(customForeground).setStyle(originalStyle);
+                modifiedMessage.append(modifiedSibling);
+
+            } else if (isName(sibling)) {
+                Style originalStyle = sibling.getStyle();
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(nameColorValue));
+                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
+                modifiedMessage.append(modifiedSibling);
+
+            } else {
+                modifiedMessage.append(sibling);
+            }
+        }
+        return modifiedMessage;
     }
 
     private static Text modifyChat(Text originalMessage, String rank) {
