@@ -6,6 +6,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.wiji.wynntracker.WynnTrackerClient;
+import dev.wiji.wynntracker.badge.BadgeManager;
+import dev.wiji.wynntracker.badge.CustomBadge;
 import dev.wiji.wynntracker.controllers.Authentication;
 import dev.wiji.wynntracker.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
