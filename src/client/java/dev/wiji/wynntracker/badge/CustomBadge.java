@@ -4,26 +4,24 @@ import com.wynntils.services.leaderboard.type.LeaderboardType;
 
 public enum CustomBadge {
     
-    TNA_TOP_3("TNA Top 3", 0xB8AC2C, LeaderboardType.TNA_COMPLETION, BaseType.GOLD),
-    TNA_TOP_6("TNA Top 6", 0xDEDDD3, LeaderboardType.TNA_COMPLETION, BaseType.SILVER),
-    TNA_TOP_9("TNA Top 9", 0xC2891F, LeaderboardType.TNA_COMPLETION, BaseType.BRONZE),
+    // Temporarily disabled custom coloring - using white (0xFFFFFF) for all badges
+    TNA_TOP_1("TNA Top 1", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.GOLD),
+    TNA_TOP_2("TNA Top 2", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.SILVER),
+    TNA_TOP_3("TNA Top 3", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.BRONZE),
 
-    TCC_TOP_3("TCC Top 3", 0x9400D3, LeaderboardType.TCC_COMPLETION, BaseType.GOLD),
-    TCC_TOP_6("TCC Top 6", 0x9400D3, LeaderboardType.TCC_COMPLETION, BaseType.SILVER),
-    TCC_TOP_9("TCC Top 9", 0x9400D3, LeaderboardType.TCC_COMPLETION, BaseType.BRONZE),
+    TCC_TOP_1("TCC Top 1", 0xFFFFFF, LeaderboardType.TCC_COMPLETION, BaseType.GOLD),
+    TCC_TOP_2("TCC Top 2", 0xFFFFFF, LeaderboardType.TCC_COMPLETION, BaseType.SILVER),
+    TCC_TOP_3("TCC Top 3", 0xFFFFFF, LeaderboardType.TCC_COMPLETION, BaseType.BRONZE),
 
-    NOL_TOP_3("NOL Top 3", 0x9400D3, LeaderboardType.NOL_COMPLETION, BaseType.GOLD),
-    NOL_TOP_6("NOL Top 6", 0x9400D3, LeaderboardType.NOL_COMPLETION, BaseType.SILVER),
-    NOL_TOP_9("NOL Top 9", 0x9400D3, LeaderboardType.NOL_COMPLETION, BaseType.BRONZE),
+    NOL_TOP_1("NOL Top 1", 0xFFFFFF, LeaderboardType.NOL_COMPLETION, BaseType.GOLD),
+    NOL_TOP_2("NOL Top 2", 0xFFFFFF, LeaderboardType.NOL_COMPLETION, BaseType.SILVER),
+    NOL_TOP_3("NOL Top 3", 0xFFFFFF, LeaderboardType.NOL_COMPLETION, BaseType.BRONZE),
 
-    NOTG_TOP_3("NOTG Top 3", 0x9400D3, LeaderboardType.NOG_COMPLETION, BaseType.GOLD),
-    NOTG_TOP_6("NOTG Top 6", 0x9400D3, LeaderboardType.NOG_COMPLETION, BaseType.SILVER),
-    NOTG_TOP_9("NOTG Top 9", 0x9400D3, LeaderboardType.NOG_COMPLETION, BaseType.BRONZE),
+    NOTG_TOP_1("NOTG Top 1", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.GOLD),
+    NOTG_TOP_2("NOTG Top 2", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.SILVER),
+    NOTG_TOP_3("NOTG Top 3", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.BRONZE),
     ;
-    
-    /**
-     * Base texture types corresponding to the three rows in the badge texture
-     */
+
     public enum BaseType {
         GOLD(0),  
         SILVER(1),
@@ -103,7 +101,7 @@ public enum CustomBadge {
      * Get the V offset for the badge texture (selects gold/silver/bronze row)
      */
     public int getVOffset() {
-        return baseType.getRowIndex(); // Use the selected base row
+        return baseType.getRowIndex() * 18; // Use proper row height spacing (same as width)
     }
     
     /**
