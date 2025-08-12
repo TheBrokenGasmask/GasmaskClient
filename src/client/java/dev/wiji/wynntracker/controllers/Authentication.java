@@ -13,6 +13,7 @@ import java.util.UUID;
 
 public class Authentication {
 	public static String token = null;
+	private static WebSocket webSocket = new WebSocket();
 
 	public static void authInit() {
 		sendAuthRequest();
@@ -92,8 +93,9 @@ public class Authentication {
 		System.out.println("Successfully authenticated with server: " + token);
 
 		MinecraftClient mc = MinecraftClient.getInstance();
-		if(mc.player == null) return;
-		mc.player.sendMessage(Text.literal("§aSuccessfully authenticated with server."), false);
+		if(mc.player != null) mc.player.sendMessage(Text.literal("§aSuccessfully authenticated with server."), false);
+
+		connectWebSocket();
 	}
 
 	public static void checkForAuthentication() {
@@ -117,5 +119,38 @@ public class Authentication {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void connectWebSocket() {
+		new Thread(() -> {
+			try {
+				System.out.println("Waiting 3 seconds before connecting to WebSocket...");
+				Thread.sleep(3000);
+				
+				System.out.println("Attempting to connect to WebSocket...");
+				webSocket.connectWithRetry()
+					.thenRun(() -> {
+						System.out.println("WebSocket connected successfully");
+						MinecraftClient mc = MinecraftClient.getInstance();
+						if(mc.player != null) {
+							mc.player.sendMessage(Text.literal("§aWebSocket connected."), false);
+						}
+					})
+					.exceptionally(throwable -> {
+						System.err.println("Failed to connect WebSocket: " + throwable.getMessage());
+						MinecraftClient mc = MinecraftClient.getInstance();
+						if(mc.player != null) {
+							mc.player.sendMessage(Text.literal("§cFailed to connect WebSocket."), false);
+						}
+						return null;
+					});
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}).start();
+	}
+
+	public static WebSocket getWebSocketManager() {
+		return webSocket;
 	}
 }

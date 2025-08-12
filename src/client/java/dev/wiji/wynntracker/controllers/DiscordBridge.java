@@ -55,6 +55,8 @@ public class DiscordBridge {
         System.out.println("wynnTracker body: " + messageBody);
         System.out.println("wynnTracker full: " + messageString);
 
+        // Send the message to the Discord bridge
+        Authentication.getWebSocketManager().sendChatMessage(username, messageBody);
         return username;
     }
 
