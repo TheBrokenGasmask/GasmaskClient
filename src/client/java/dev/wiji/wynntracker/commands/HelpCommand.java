@@ -19,8 +19,8 @@ public class HelpCommand extends AbstractClientCommand {
     public HelpCommand(List<ClientCommand> commands) {
         super(
             "help", 
-            "Shows available WynnTracker commands",
-            "/wynntracker help [command]"
+            "Shows available tbgm commands",
+            "/tbgm help [command]"
         );
         this.commands = commands;
     }
@@ -37,14 +37,14 @@ public class HelpCommand extends AbstractClientCommand {
     private int executeHelp(CommandContext<FabricClientCommandSource> context) {
         FabricClientCommandSource source = context.getSource();
         
-        source.sendFeedback(Text.literal("=== WynnTracker Commands ===").formatted(Formatting.GOLD));
+        source.sendFeedback(Text.literal("=== tbgm Commands ===").formatted(Formatting.GOLD));
         
         for (ClientCommand command : commands) {
-            source.sendFeedback(Text.literal("/wynntracker " + command.getName() + " - " + command.getDescription())
+            source.sendFeedback(Text.literal("/tbgm " + command.getName() + " - " + command.getDescription())
                 .formatted(Formatting.YELLOW));
         }
         
-        source.sendFeedback(Text.literal("Use '/wynntracker help <command>' for more information about a specific command.")
+        source.sendFeedback(Text.literal("Use '/tbgm help <command>' for more information about a specific command.")
             .formatted(Formatting.GRAY));
         
         return 1;
@@ -60,7 +60,7 @@ public class HelpCommand extends AbstractClientCommand {
         
         if (command.isPresent()) {
             ClientCommand cmd = command.get();
-            source.sendFeedback(Text.literal("=== Command: /wynntracker " + cmd.getName() + " ===")
+            source.sendFeedback(Text.literal("=== Command: /tbgm " + cmd.getName() + " ===")
                 .formatted(Formatting.GOLD));
             source.sendFeedback(Text.literal("Description: " + cmd.getDescription())
                 .formatted(Formatting.YELLOW));

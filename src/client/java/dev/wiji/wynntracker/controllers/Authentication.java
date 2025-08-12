@@ -8,6 +8,7 @@ import net.minecraft.text.Text;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class Authentication {
 			String baseUrl = WynnTrackerClient.config_data.apiUrl;
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
-			URL url = new URL(baseUrl + "/api/authenticate?uuid=" + uuid);
+			URL url = URI.create(baseUrl + "/api/authenticate?uuid=" + uuid).toURL();
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
@@ -105,7 +106,7 @@ public class Authentication {
 			String baseUrl = WynnTrackerClient.config_data.apiUrl;
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
-			URL url = new URL(baseUrl + "/api/is-authenticated?uuid=" + uuid);
+			URL url = URI.create(baseUrl + "/api/is-authenticated?uuid=" + uuid).toURL();
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");

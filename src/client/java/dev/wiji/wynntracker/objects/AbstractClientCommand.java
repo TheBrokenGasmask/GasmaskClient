@@ -10,7 +10,7 @@ public abstract class AbstractClientCommand implements ClientCommand {
     protected final String name;
     protected final String description;
     protected final String usage;
-    protected static final String PREFIX = "wynntracker";
+    protected static final String PREFIX = "tbgm";
 
     public AbstractClientCommand(String name, String description, String usage) {
         this.name = name;
@@ -38,7 +38,7 @@ public abstract class AbstractClientCommand implements ClientCommand {
     }
 
     protected void sendErrorMessage(FabricClientCommandSource source, String message) {
-        source.sendFeedback(Text.literal(message).formatted(Formatting.RED));
+        source.sendError(Text.literal(message).formatted(Formatting.RED));
     }
 
     protected void sendInfoMessage(FabricClientCommandSource source, String message) {

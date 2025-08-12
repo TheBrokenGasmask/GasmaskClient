@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +89,7 @@ public class RaidReport {
 		parameters.forEach((key, value) -> urlBuilder.append(key).append("=").append(value).append("&"));
 
 		try {
-			URL url = new URL(urlBuilder.toString());
+			URL url = URI.create(urlBuilder.toString()).toURL();
 			System.out.println("Sending raid report to: " + urlBuilder);
 
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();

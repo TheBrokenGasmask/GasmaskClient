@@ -1,7 +1,9 @@
 package dev.wiji.wynntracker;
 
 import dev.wiji.wynntracker.commands.HelpCommand;
+import dev.wiji.wynntracker.commands.LinkCommand;
 import dev.wiji.wynntracker.commands.ToggleAspectsCommand;
+import dev.wiji.wynntracker.commands.UnlinkCommand;
 import dev.wiji.wynntracker.controllers.Authentication;
 import dev.wiji.wynntracker.controllers.Config;
 import dev.wiji.wynntracker.objects.ClientCommand;
@@ -39,6 +41,8 @@ public class WynnTrackerClient implements ClientModInitializer {
 
 	private void registerCommands() {
 		commands.add(new ToggleAspectsCommand());
+		commands.add(new LinkCommand());
+		commands.add(new UnlinkCommand()	);
 		commands.add(new HelpCommand(commands));
 	}
 

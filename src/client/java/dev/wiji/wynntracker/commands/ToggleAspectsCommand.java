@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 		super(
 			"aspects",
 			"Toggles your status of needing guild aspects",
-			"/wynntracker aspects"
+			"/tbgm aspects"
 		);
 	}
 
@@ -47,7 +48,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 			urlBuilder.append("&token=").append(Authentication.token);
 
 			try {
-				URL url = new URL(urlBuilder.toString());
+				URL url = URI.create(urlBuilder.toString()).toURL();
 				System.out.println("Sending toggle request to: " + urlBuilder);
 
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -85,8 +86,6 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 
 				conn.disconnect();
 			} catch (Exception e) {
-				e.printStackTrace();
-
 				sendErrorMessage(source.getSource(), "Failed to toggle aspects: " + e.getMessage());
 			}
 
