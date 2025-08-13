@@ -100,8 +100,11 @@ public class BadgeManager {
                 UUID playerId = entry.getKey();
                 List<ColoredBadge> playerBadges = entry.getValue();
                 
-                // Only use our colored badges, don't combine with existing ones to avoid duplicates
-                List<LeaderboardBadge> newBadges = new ArrayList<>();
+                // Get original wynntils badges for this player
+                List<LeaderboardBadge> originalBadges = getOriginalWynntilsBadges(playerId, currentMap);
+                
+                // Combine original badges with our custom badges
+                List<LeaderboardBadge> combinedBadges = new ArrayList<>(originalBadges);
                 
                 for (ColoredBadge coloredBadge : playerBadges) {
                     // Use the badge's specified base texture (gold/silver/bronze row)
@@ -110,10 +113,10 @@ public class BadgeManager {
                         coloredBadge.uOffset(), 
                         coloredBadge.vOffset()
                     );
-                    newBadges.add(modifiedBadge);
+                    combinedBadges.add(modifiedBadge);
                 }
                 
-                newMap.put(playerId, newBadges);
+                newMap.put(playerId, combinedBadges);
             }
             
             leaderboardField.set(Services.Leaderboard, newMap);
@@ -124,7 +127,7 @@ public class BadgeManager {
     }
     
     /**
-     * Remove a specific player's badges from the leaderboard system
+     * Remove only custom badges from a player, preserving legitimate wynntils badges
      */
     @SuppressWarnings("unchecked")
     private static void clearPlayerFromLeaderboard(UUID playerUuid) {
@@ -133,13 +136,57 @@ public class BadgeManager {
                 (Map<UUID, List<LeaderboardBadge>>) leaderboardField.get(Services.Leaderboard);
             
             Map<UUID, List<LeaderboardBadge>> newMap = new HashMap<>(currentMap);
-            newMap.remove(playerUuid); // Remove the player entirely from the leaderboard badges
+            
+            // Get the original wynntils badges before we started adding custom ones
+            List<LeaderboardBadge> originalBadges = getOriginalWynntilsBadges(playerUuid, currentMap);
+            
+            if (originalBadges.isEmpty()) {
+                // If no original badges, remove the player entirely
+                newMap.remove(playerUuid);
+            } else {
+                // Restore only the original wynntils badges
+                newMap.put(playerUuid, originalBadges);
+            }
             
             leaderboardField.set(Services.Leaderboard, newMap);
             
         } catch (Exception e) {
             System.err.println("Failed to clear player from leaderboard: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Get the original wynntils badges for a player (badges that aren't in our custom badge list)
+     */
+    @SuppressWarnings("unchecked")
+    private static List<LeaderboardBadge> getOriginalWynntilsBadges(UUID playerUuid, Map<UUID, List<LeaderboardBadge>> currentMap) {
+        List<LeaderboardBadge> currentBadges = currentMap.get(playerUuid);
+        if (currentBadges == null) {
+            return new ArrayList<>();
+        }
+        
+        List<ColoredBadge> ourCustomBadges = coloredBadges.get(playerUuid);
+        if (ourCustomBadges == null || ourCustomBadges.isEmpty()) {
+            // If we don't have any custom badges for this player, all their badges are original
+            return new ArrayList<>(currentBadges);
+        }
+        
+        // Filter out our custom badges, keeping only original wynntils ones
+        List<LeaderboardBadge> originalBadges = new ArrayList<>();
+        for (LeaderboardBadge badge : currentBadges) {
+            boolean isCustomBadge = false;
+            for (ColoredBadge customBadge : ourCustomBadges) {
+                if (badge.uOffset() == customBadge.uOffset() && badge.vOffset() == customBadge.vOffset()) {
+                    isCustomBadge = true;
+                    break;
+                }
+            }
+            if (!isCustomBadge) {
+                originalBadges.add(badge);
+            }
+        }
+        
+        return originalBadges;
     }
     
     /**

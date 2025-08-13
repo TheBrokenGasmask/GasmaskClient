@@ -59,8 +59,6 @@ public class RenderUtilsMixin {
             int customColor = BadgeManager.getBadgeColor(playerUuid, currentUOffset, currentVOffset);
             
             if (customColor != 0) {
-                System.out.println("Custom badge: uOffset=" + currentUOffset + ", vOffset=" + currentVOffset + 
-                    " (player: " + player.getName().getString() + ")");
                 return Identifier.of("wynntracker", "textures/badges.png");
             }
         }

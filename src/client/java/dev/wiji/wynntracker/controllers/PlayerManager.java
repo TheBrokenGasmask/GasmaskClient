@@ -24,7 +24,7 @@ public class PlayerManager {
     private static final Map<UUID, PlayerInfo> playerInfoMap = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static boolean autoFetchEnabled = false;
-    private static final int FETCH_INTERVAL_MINUTES = 5;
+    private static final int FETCH_INTERVAL_MINUTES = 1;
     
     /**
      * Player information structure for local storage

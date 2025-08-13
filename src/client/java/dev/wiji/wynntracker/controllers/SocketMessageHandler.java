@@ -56,7 +56,7 @@ public class SocketMessageHandler {
             "advisor", 0xBE790E
     );
 
-    public static void messageToClient(String name, String rank, String body){
+    public static void messageToClient(String name, String rank, String body) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
 
