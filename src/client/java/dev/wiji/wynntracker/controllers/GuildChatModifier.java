@@ -4,10 +4,12 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Identifier;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,11 +55,19 @@ public class GuildChatModifier {
             "advisor", "\uE000\uE003\uE015\uE008\uE012\uE00E\uE011\uDB00\uDC02"
     );
 
-    private static String isCustomRank(String name){
-        if (Objects.equals(name, "Iron")){
-            return "advisor";
+    private static String isCustomRank(String name) {
+        PlayerManager.PlayerInfo playerInfo = PlayerManager.getPlayerInfo(name);
+        if (playerInfo == null || playerInfo.getRank() == null) {
+            return null;
         }
-        else return null;
+
+        String playerRank = playerInfo.getRank().toLowerCase();
+        Set<String> vanillaRanks = Set.of("owner", "chief", "strategist", "captain", "recruiter", "recruit");
+        if (!vanillaRanks.contains(playerRank)) {
+            return playerRank;
+        }
+
+        return null;
     }
 
     public static Text modifyGuildMessage(Text originalMessage) {
@@ -149,13 +159,14 @@ public class GuildChatModifier {
 
             if (i == 2) {
                 Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
                 MutableText modifiedSibling = Text.literal(customBackground).setStyle(newStyle);
                 modifiedMessage.append(modifiedSibling);
 
             } else if (i == 3) {
                 Style originalStyle = sibling.getStyle();
-                MutableText modifiedSibling = Text.literal(customForeground).setStyle(originalStyle);
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
+                MutableText modifiedSibling = Text.literal(customForeground).setStyle(newStyle);
                 modifiedMessage.append(modifiedSibling);
 
             } else if (isName(sibling)) {
@@ -182,6 +193,12 @@ public class GuildChatModifier {
 
             if (i == 2) {
                 Style originalStyle = sibling.getStyle();
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
+                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
+                modifiedMessage.append(modifiedSibling);
+
+            } else if (i == 3) {
+                Style originalStyle = sibling.getStyle();
                 Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
                 MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
                 modifiedMessage.append(modifiedSibling);
@@ -193,11 +210,36 @@ public class GuildChatModifier {
                 modifiedMessage.append(modifiedSibling);
 
             } else {
-                modifiedMessage.append(sibling);
+                modifiedMessage.append(modifyTextColor(sibling));
 
             }
         }
         return modifiedMessage;
+    }
+
+    private static MutableText modifyTextColor(Text sibling) {
+        if (shouldModifyColor(sibling)) {
+            Style originalStyle = sibling.getStyle();
+            Style newStyle = originalStyle.withColor(TextColor.fromRgb(0xC9FFFF));
+            return Text.literal(sibling.getString()).setStyle(newStyle);
+        }
+        return Text.literal(sibling.getString()).setStyle(sibling.getStyle());
+    }
+
+    private static boolean shouldModifyColor(Text sibling) {
+        Style style = sibling.getStyle();
+        if (style.getColor() == null || style.getColor().getRgb() != 0x55FFFF) {
+            return false;
+        }
+
+        Identifier font = style.getFont();
+        if (font != null) {
+            String fontString = font.toString();
+            if ("minecraft:chat/prefix".equals(fontString)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isName(Text sibling) {

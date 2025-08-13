@@ -3,16 +3,19 @@ package dev.wiji.wynntracker.controllers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class SocketMessageHandler {
     public static final String CHAT_PREFIX = "\udaff\udffc\ue006\udaff\udfff\ue002\udaff\udffe";
 
+    private static final Pattern URL_PATTERN = Pattern.compile(
+            "https?://(?:[-\\w.])+(?:[:\\d]+)?(?:/(?:[\\w/_.])*(?:\\?(?:[&\\w._=-])*)?(?:#(?:[\\w._-]*))?)?"
+    );
     //static temporary values for styling, should move later
     public static final Map<String, String> RANK = Map.of(
             "owner", "\ue060\udaff\udfff\ue03e\udaff\udfff\ue046\udaff\udfff\ue03d\udaff\udfff\ue034\udaff\udfff\ue041\udaff\udfff\ue062\udaff\udfe0",
@@ -98,10 +101,7 @@ public class SocketMessageHandler {
                         .withColor(nameColor)
                         .withFont(Identifier.of("minecraft", "default")));
 
-        MutableText bodyComponent = Text.literal(" " + body)
-                .setStyle(Style.EMPTY
-                        .withColor(0xc9ffff)
-                        .withFont(Identifier.of("minecraft", "default")));
+        MutableText bodyComponent = Text.literal(" ").append(parseUrls(body));
 
         MutableText finalMessage = chatPrefix
                 .append(discordIcon)
@@ -115,5 +115,55 @@ public class SocketMessageHandler {
         client.execute(() -> {
             networkHandler.onGameMessage(packet);
         });
+    }
+
+    private static MutableText parseUrls(String text) {
+        Matcher matcher = URL_PATTERN.matcher(text);
+        MutableText result = Text.literal("");
+        int lastEnd = 0;
+
+        while (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            String url = matcher.group();
+
+            if (start > lastEnd) {
+                String beforeUrl = text.substring(lastEnd, start);
+                result.append(Text.literal(beforeUrl)
+                        .setStyle(Style.EMPTY
+                                .withColor(0xc9ffff)
+                                .withFont(Identifier.of("minecraft", "default"))));
+            }
+
+            MutableText urlComponent = Text.literal(url)
+                    .setStyle(Style.EMPTY
+                            .withColor(0xabffff)
+                            .withUnderline(true)
+                            .withFont(Identifier.of("minecraft", "default"))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    Text.literal("Click to open in browser")
+                                            .setStyle(Style.EMPTY.withColor(Formatting.GRAY)))));
+
+            result.append(urlComponent);
+            lastEnd = end;
+        }
+
+        if (lastEnd < text.length()) {
+            String remainingText = text.substring(lastEnd);
+            result.append(Text.literal(remainingText)
+                    .setStyle(Style.EMPTY
+                            .withColor(0xc9ffff)
+                            .withFont(Identifier.of("minecraft", "default"))));
+        }
+
+        if (lastEnd == 0) {
+            result = Text.literal(text)
+                    .setStyle(Style.EMPTY
+                            .withColor(0xc9ffff)
+                            .withFont(Identifier.of("minecraft", "default")));
+        }
+
+        return result;
     }
 }
