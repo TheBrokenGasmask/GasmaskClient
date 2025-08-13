@@ -59,6 +59,53 @@ public class SocketMessageHandler {
             "advisor", 0xBE790E
     );
 
+    public static void announceToClient(Boolean guildAlert, String body) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
+        MutableText finalMessage;
+        if (networkHandler == null || client.player == null) {
+            return;
+        }
+
+        MutableText chatPrefix = Text.literal(CHAT_PREFIX)
+                .setStyle(Style.EMPTY
+                        .withColor(Formatting.AQUA)
+                        .withFont(Identifier.of("minecraft", "chat/prefix")));
+
+        if (guildAlert) {
+            //placeholder still needs proper formatting
+            MutableText guildAlertComponent = Text.literal(" TBGM")
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.RED)
+                            .withFont(Identifier.of("minecraft", "default")));
+            //Keep - resets font to default for rest of the message
+            MutableText colonComponent = Text.literal(":")
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.RED)
+                            .withFont(Identifier.of("minecraft", "default")));
+
+            MutableText bodyComponent = Text.literal(" "+body);
+
+            finalMessage = chatPrefix
+                    .append(guildAlertComponent)
+                    .append(colonComponent)
+                    .append(bodyComponent);
+        } else {
+            MutableText bodyComponent = Text.literal(" "+body)
+                    .setStyle(Style.EMPTY
+                            .withColor(0xc9ffff)
+                            .withFont(Identifier.of("minecraft", "default")));
+            finalMessage = chatPrefix
+                    .append(bodyComponent);
+        }
+
+        GameMessageS2CPacket packet = new GameMessageS2CPacket(finalMessage, false);
+
+        client.execute(() -> {
+            networkHandler.onGameMessage(packet);
+        });
+    }
+
     public static void messageToClient(String name, String rank, String body) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();

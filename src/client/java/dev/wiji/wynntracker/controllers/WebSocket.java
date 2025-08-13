@@ -200,6 +200,14 @@ public class WebSocket {
                     
                     SocketMessageHandler.messageToClient(username, rank, content);
                 }
+            } else if (json.has("type") && "chat_announcement".equals(json.get("type").getAsString())) {
+                JsonObject data = json.getAsJsonObject("data");
+                if (data != null && data.has("guild_alert") && data.has("message")) {
+                    Boolean guildAlert = data.get("guild_alert").getAsBoolean();
+                    String content = data.get("message").getAsString();
+
+                    SocketMessageHandler.announceToClient(guildAlert, content);
+                }
             }
         } catch (Exception e) {
             // Log the error but don't crash - might be a different message type
