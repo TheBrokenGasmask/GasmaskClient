@@ -198,7 +198,7 @@ public class WebSocket {
                     String content = data.get("message").getAsString();
                     String rank = data.get("rank").getAsString();
                     
-                    //TODO: Build and display chat message
+                    SocketMessageHandler.messageToClient(username, rank, content);
                 }
             }
         } catch (Exception e) {
