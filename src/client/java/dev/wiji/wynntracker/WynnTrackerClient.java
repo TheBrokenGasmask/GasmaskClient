@@ -6,7 +6,7 @@ import dev.wiji.wynntracker.commands.ToggleAspectsCommand;
 import dev.wiji.wynntracker.commands.UnlinkCommand;
 import dev.wiji.wynntracker.controllers.Authentication;
 import dev.wiji.wynntracker.controllers.Config;
-import dev.wiji.wynntracker.badge.BadgeManager;
+import dev.wiji.wynntracker.controllers.PlayerManager;
 import dev.wiji.wynntracker.objects.ClientCommand;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class WynnTrackerClient implements ClientModInitializer {
 	public static Config.ConfigData config_data;
@@ -33,6 +32,7 @@ public class WynnTrackerClient implements ClientModInitializer {
 		});
 
 		registerCommands();
+		PlayerManager.startAutoFetch();
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			for (ClientCommand command : commands) {

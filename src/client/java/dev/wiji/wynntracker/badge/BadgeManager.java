@@ -95,6 +95,7 @@ public class BadgeManager {
             
             Map<UUID, List<LeaderboardBadge>> newMap = new HashMap<>(currentMap);
             
+            // Update players with badges
             for (Map.Entry<UUID, List<ColoredBadge>> entry : coloredBadges.entrySet()) {
                 UUID playerId = entry.getKey();
                 List<ColoredBadge> playerBadges = entry.getValue();
@@ -119,6 +120,25 @@ public class BadgeManager {
             
         } catch (Exception e) {
             System.err.println("Failed to inject colored badges: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Remove a specific player's badges from the leaderboard system
+     */
+    @SuppressWarnings("unchecked")
+    private static void clearPlayerFromLeaderboard(UUID playerUuid) {
+        try {
+            Map<UUID, List<LeaderboardBadge>> currentMap = 
+                (Map<UUID, List<LeaderboardBadge>>) leaderboardField.get(Services.Leaderboard);
+            
+            Map<UUID, List<LeaderboardBadge>> newMap = new HashMap<>(currentMap);
+            newMap.remove(playerUuid); // Remove the player entirely from the leaderboard badges
+            
+            leaderboardField.set(Services.Leaderboard, newMap);
+            
+        } catch (Exception e) {
+            System.err.println("Failed to clear player from leaderboard: " + e.getMessage());
         }
     }
     
@@ -148,7 +168,7 @@ public class BadgeManager {
     /**
      * Replace all badges for a player (clears existing first)
      */
-    public static void replaceBadges(UUID playerUuid, CustomBadge... badges) {
+    public static void replaceBadges(UUID playerUuid, List<CustomBadge> badges) {
         clearAllBadges(playerUuid);
         applyBadges(playerUuid, badges);
     }
@@ -164,7 +184,9 @@ public class BadgeManager {
                 badgeColorMap.remove(getBadgeKey(playerUuid, badge.uOffset(), badge.vOffset()));
             }
         }
-        injectBadges();
+        
+        // Actually remove the player from the leaderboard system
+        clearPlayerFromLeaderboard(playerUuid);
     }
 
     /**
@@ -180,6 +202,7 @@ public class BadgeManager {
     public static int getBadgeColor(UUID playerUuid, int uOffset, int vOffset) {
         return badgeColorMap.getOrDefault(getBadgeKey(playerUuid, uOffset, vOffset), 0);
     }
+    
 
     /**
      * Check if the system is ready
