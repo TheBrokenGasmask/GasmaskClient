@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import dev.wiji.wynntracker.WynnTrackerClient;
 import dev.wiji.wynntracker.badge.BadgeManager;
 import dev.wiji.wynntracker.badge.CustomBadge;
+import dev.wiji.wynntracker.enums.RankIcon;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,7 +34,7 @@ public class PlayerManager {
         private final UUID uuid;
         private final String username;
         private final String guild;
-        private final String rank; // Optional guild rank
+        private final String rank;
         private final int needsAspects;
         private final List<CustomBadge> badges;
         private final boolean hasDiscordLink;
@@ -164,9 +165,7 @@ public class PlayerManager {
             for (JsonElement element : playersArray) {
                 JsonObject playerObj = element.getAsJsonObject();
                 PlayerInfo playerInfo = parsePlayerObject(playerObj);
-                if (playerInfo != null) {
-                    updatedCount++;
-                }
+                if (playerInfo != null) updatedCount++;
             }
             
             System.out.println("Parsed and stored " + updatedCount + " player records");
@@ -212,17 +211,14 @@ public class PlayerManager {
             }
             
             // Create and store player info
-            PlayerInfo playerInfo = new PlayerInfo(uuid, username, guild, rank, 
-                                                  needsAspects, badges, hasDiscordLink);
+            PlayerInfo playerInfo = new PlayerInfo(uuid, username, guild, rank, needsAspects, badges, hasDiscordLink);
             playerInfoMap.put(uuid, playerInfo);
             
-            // Apply badges to the player via BadgeManager
-            if (!badges.isEmpty()) {
-                BadgeManager.replaceBadges(uuid, badges);
-            } else {
-                // Clear badges if player has none
-                BadgeManager.clearAllBadges(uuid);
-            }
+            if (!badges.isEmpty()) BadgeManager.replaceBadges(uuid, badges);
+            else BadgeManager.clearAllBadges(uuid);
+
+            RankIcon rankIcon = RankIcon.fromName(rank);
+            PlayerIconManager.setPlayerIcon(uuid, rankIcon);
             
             return playerInfo;
         } catch (Exception e) {

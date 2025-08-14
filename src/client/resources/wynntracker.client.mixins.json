@@ -6,7 +6,8 @@
 		"ChatMixin",
 		"ChatHudMixin",
 		"RenderUtilsMixin",
-		"MatchPatternMixin"
+		"MatchPatternMixin",
+		"NametagRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
