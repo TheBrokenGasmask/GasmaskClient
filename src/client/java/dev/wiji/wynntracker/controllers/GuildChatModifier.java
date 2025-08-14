@@ -16,19 +16,12 @@ public class GuildChatModifier {
 
     private static Rank isCustomRank(String name) {
         PlayerManager.PlayerInfo playerInfo = PlayerManager.getPlayerInfo(name);
-        if (playerInfo == null || playerInfo.getRank() == null) {
-            return null;
-        }
+        if (playerInfo == null || playerInfo.getRank() == null) return null;
 
         String playerRank = playerInfo.getRank().toLowerCase();
 
-        Set<String> vanillaRanks = Set.of("owner", "chief", "strategist", "captain", "recruiter", "recruit");
-        if (!vanillaRanks.contains(playerRank)) {
-            Optional<Rank> rankOptional = Rank.fromString(playerRank);
-            return rankOptional.orElse(null);
-        }
-
-        return null;
+        Optional<Rank> rankOptional = Rank.fromString(playerRank);
+        return rankOptional.orElse(null);
     }
 
     public static Text modifyGuildMessage(Text originalMessage) {
