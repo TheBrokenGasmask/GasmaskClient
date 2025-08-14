@@ -1,63 +1,34 @@
 package dev.wiji.wynntracker.controllers;
 
+import dev.wiji.wynntracker.enums.Rank;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Identifier;
 
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GuildChatModifier {
-    public static final Map<String, String> RANK = Map.of(
-            "owner", "\ue060\udaff\udfff\ue03e\udaff\udfff\ue046\udaff\udfff\ue03d\udaff\udfff\ue034\udaff\udfff\ue041\udaff\udfff\ue062\udaff\udfe0",
-            "chief", "\ue060\udaff\udfff\ue032\udaff\udfff\ue037\udaff\udfff\ue038\udaff\udfff\ue034\udaff\udfff\ue035\udaff\udfff\ue062\udaff\udfe2",
-            "strategist", "\ue060\udaff\udfff\ue042\udaff\udfff\ue043\udaff\udfff\ue041\udaff\udfff\ue030\udaff\udfff\ue043\udaff\udfff\ue034\udaff\udfff\ue036\udaff\udfff\ue038\udaff\udfff\ue042\udaff\udfff\ue043\udaff\udfff\ue062\udaff\udfc4",
-            "captain", "\ue060\udaff\udfff\ue032\udaff\udfff\ue030\udaff\udfff\ue03f\udaff\udfff\ue043\udaff\udfff\ue030\udaff\udfff\ue038\udaff\udfff\ue03d\udaff\udfff\ue062\udaff\udfd6",
-            "recruiter", "\ue060\udaff\udfff\ue041\udaff\udfff\ue034\udaff\udfff\ue032\udaff\udfff\ue041\udaff\udfff\ue044\udaff\udfff\ue038\udaff\udfff\ue043\udaff\udfff\ue034\udaff\udfff\ue041\udaff\udfff\ue062\udaff\udfca",
-            "recruit", "\ue060\udaff\udfff\ue041\udaff\udfff\ue034\udaff\udfff\ue032\udaff\udfff\ue041\udaff\udfff\ue044\udaff\udfff\ue038\udaff\udfff\ue043\udaff\udfff\ue062\udaff\udfd6"
-    );
 
-    public static final Map<String, Integer> RANK_COLORS = Map.of(
-            "owner", 0xA200ED,
-            "chief", 0xA200ED,
-            "strategist", 0xED9600,
-            "captain", 0xFAE100,
-            "recruiter", 0x04D400,
-            "recruit", 0x00F0DC,
-            "officer", 0x00F0DC,
-            "advisor", 0xED9600
-    );
-
-    public static final Map<String, Integer> NAME_COLORS = Map.of(
-            "owner", 0x7415A6,
-            "chief", 0x7415A6,
-            "strategist", 0xBE790E,
-            "captain", 0xC8B414,
-            "recruiter", 0x1E9514,
-            "recruit", 0x21A89B,
-            "officer", 0x21A89B,
-            "advisor", 0xBE790E
-    );
-
-    public static final Map<String, String> CUSTOM_RANK_BACKGROUND = Map.of(
-            "officer", "\uE060\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE034\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD6",
-            "advisor", "\uE060\uDAFF\uDFFF\uE030\uDAFF\uDFFF\uE033\uDAFF\uDFFF\uE045\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE042\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD1" // this is broken ill fix this later
-    );
-
-    public static final Map<String, String> CUSTOM_RANK_FOREGROUND = Map.of(
-            "officer", "\uE00E\uE005\uE005\uE008\uE002\uE004\uE011\uDB00\uDC02",
-            "advisor", "\uE000\uE003\uE015\uE008\uE012\uE00E\uE011\uDB00\uDC02"
-    );
-
-    private static String isCustomRank(String name){
-        if (Objects.equals(name, "Iron")){
-            return "advisor";
+    private static Rank isCustomRank(String name) {
+        PlayerManager.PlayerInfo playerInfo = PlayerManager.getPlayerInfo(name);
+        if (playerInfo == null || playerInfo.getRank() == null) {
+            return null;
         }
-        else return null;
+
+        String playerRank = playerInfo.getRank().toLowerCase();
+
+        Set<String> vanillaRanks = Set.of("owner", "chief", "strategist", "captain", "recruiter", "recruit");
+        if (!vanillaRanks.contains(playerRank)) {
+            Optional<Rank> rankOptional = Rank.fromString(playerRank);
+            return rankOptional.orElse(null);
+        }
+
+        return null;
     }
 
     public static Text modifyGuildMessage(Text originalMessage) {
@@ -70,17 +41,17 @@ public class GuildChatModifier {
             return originalMessage;
         }
 
-        String customRank = isCustomRank(username);
+        Rank customRank = isCustomRank(username);
         if (customRank != null) {
             return modifyCustomRankChat(originalMessage, customRank);
         }
 
         String rankText = originalMessage.getSiblings().get(2).getString();
 
-        String matchedRank = null;
-        for (Map.Entry<String, String> entry : RANK.entrySet()) {
-            if (entry.getValue().equals(rankText)) {
-                matchedRank = entry.getKey();
+        Rank matchedRank = null;
+        for (Rank rank : Rank.values()) {
+            if (rank.getBackgroundText().equals(rankText)) {
+                matchedRank = rank;
                 break;
             }
         }
@@ -136,11 +107,11 @@ public class GuildChatModifier {
         return username[0];
     }
 
-    private static Text modifyCustomRankChat(Text originalMessage, String customRank) {
-        Integer rankColorValue = RANK_COLORS.get(customRank);
-        Integer nameColorValue = NAME_COLORS.get(customRank);
-        String customBackground = CUSTOM_RANK_BACKGROUND.get(customRank);
-        String customForeground = CUSTOM_RANK_FOREGROUND.get(customRank);
+    private static Text modifyCustomRankChat(Text originalMessage, Rank customRank) {
+        int rankColorValue = customRank.getRankColor();
+        int nameColorValue = customRank.getNameColor();
+        String customBackground = customRank.getBackgroundText();
+        String customForeground = customRank.getForegroundText();
 
         MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
 
@@ -149,13 +120,14 @@ public class GuildChatModifier {
 
             if (i == 2) {
                 Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
                 MutableText modifiedSibling = Text.literal(customBackground).setStyle(newStyle);
                 modifiedMessage.append(modifiedSibling);
 
             } else if (i == 3) {
                 Style originalStyle = sibling.getStyle();
-                MutableText modifiedSibling = Text.literal(customForeground).setStyle(originalStyle);
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
+                MutableText modifiedSibling = Text.literal(customForeground).setStyle(newStyle);
                 modifiedMessage.append(modifiedSibling);
 
             } else if (isName(sibling)) {
@@ -171,9 +143,9 @@ public class GuildChatModifier {
         return modifiedMessage;
     }
 
-    private static Text modifyChat(Text originalMessage, String rank) {
-        Integer rankColorValue = RANK_COLORS.get(rank);
-        Integer nameColorValue = NAME_COLORS.get(rank);
+    private static Text modifyChat(Text originalMessage, Rank rank) {
+        int rankColorValue = rank.getRankColor();
+        int nameColorValue = rank.getNameColor();
 
         MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
 
@@ -181,6 +153,12 @@ public class GuildChatModifier {
             Text sibling = originalMessage.getSiblings().get(i);
 
             if (i == 2) {
+                Style originalStyle = sibling.getStyle();
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
+                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
+                modifiedMessage.append(modifiedSibling);
+
+            } else if (i == 3) {
                 Style originalStyle = sibling.getStyle();
                 Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
                 MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
@@ -193,11 +171,36 @@ public class GuildChatModifier {
                 modifiedMessage.append(modifiedSibling);
 
             } else {
-                modifiedMessage.append(sibling);
+                modifiedMessage.append(modifyTextColor(sibling));
 
             }
         }
         return modifiedMessage;
+    }
+
+    private static MutableText modifyTextColor(Text sibling) {
+        if (shouldModifyColor(sibling)) {
+            Style originalStyle = sibling.getStyle();
+            Style newStyle = originalStyle.withColor(TextColor.fromRgb(0xC9FFFF));
+            return Text.literal(sibling.getString()).setStyle(newStyle);
+        }
+        return Text.literal(sibling.getString()).setStyle(sibling.getStyle());
+    }
+
+    private static boolean shouldModifyColor(Text sibling) {
+        Style style = sibling.getStyle();
+        if (style.getColor() == null || style.getColor().getRgb() != 0x55FFFF) {
+            return false;
+        }
+
+        Identifier font = style.getFont();
+        if (font != null) {
+            String fontString = font.toString();
+            if ("minecraft:chat/prefix".equals(fontString)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isName(Text sibling) {
