@@ -91,11 +91,12 @@ public class SocketMessageHandler {
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
                         .withFont(Identifier.of("minecraft", "chat/prefix")));
-        MutableText discordIcon = Text.literal("\uE000")
+        MutableText discordIcon = Text.literal(" ").append(Text.literal("\uEff1")
                 .setStyle(Style.EMPTY
-                        .withFont(Identifier.of("wynntracker", "discord")));
+                        .withColor(Formatting.WHITE)
+                        .withFont(Identifier.of("wynntracker", "discord"))));
 
-        MutableText rankBackgroundComponent = Text.literal(" "+rank.getBackgroundText())
+        MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff"+rank.getBackgroundText())
                 .setStyle(Style.EMPTY
                         .withColor(0x242424)
                         .withFont(Identifier.of("minecraft", "banner/pill")));
