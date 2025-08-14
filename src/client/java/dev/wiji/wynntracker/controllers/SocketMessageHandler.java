@@ -50,9 +50,13 @@ public class SocketMessageHandler {
                             .withColor(tbgmRank.getRankColor())
                             .withFont(Identifier.of("minecraft", "default")));
 
-            MutableText bodyComponent = Text.literal(" "+body);
+            MutableText bodyComponent = Text.literal(" "+body)
+                    .setStyle(Style.EMPTY
+                    .withColor(0xc9ffff)
+                    .withFont(Identifier.of("minecraft", "default")));
 
             finalMessage = chatPrefix
+                    .append(Text.literal(" "))
                     .append(guildAlertComponent)
                     .append(guildAlertForegroundComponent)
                     .append(colonComponent)
@@ -127,6 +131,7 @@ public class SocketMessageHandler {
     }
 
     private static MutableText parseUrls(String text) {
+        //TODO: Clean this up as it is not only used for URLs and add custom color for guild alerts.
         Matcher matcher = URL_PATTERN.matcher(text);
         MutableText result = Text.literal("");
         int lastEnd = 0;
