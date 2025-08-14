@@ -10,13 +10,15 @@ import java.util.regex.Pattern;
 import static dev.wiji.wynntracker.misc.Misc.getUnformattedString;
 
 public class DiscordBridge {
-    public static String parseChatMessage(Text message) {
-        final String GUILD_CHAT_PREFIX1 = "\udaff\udffc\ue006\udaff\udfff\ue002\udaff\udffe";
-        final String GUILD_CHAT_PREFIX2 = "\udaff\udffc\ue001\udb00\udc06";
-        final String COLOR = "aqua";
+    public static final String GUILD_CHAT_PREFIX_FLAG = "\udaff\udffc\ue006\udaff\udfff\ue002\udaff\udffe";
+    public static final String GUILD_CHAT_PREFIX_FLAGPOLE = "\udaff\udffc\ue001\udb00\udc06";
+    public static final String DISCORD_MESSAGE_SEQUENCE = "\uEff1";
 
+    public static final String COLOR = "aqua";
+
+    public static String parseChatMessage(Text message) {
         String messageString = message.getString();
-        boolean hasChatPrefix = messageString.startsWith(GUILD_CHAT_PREFIX1) || messageString.startsWith(GUILD_CHAT_PREFIX2);
+        boolean hasChatPrefix = messageString.startsWith(GUILD_CHAT_PREFIX_FLAG) || messageString.startsWith(GUILD_CHAT_PREFIX_FLAGPOLE);
 
         if (!hasChatPrefix) {
             return null;
@@ -25,7 +27,7 @@ public class DiscordBridge {
         final boolean[] hasCorrectColor = {false};
 
         message.visit((style, content) -> {
-            if (!content.isEmpty() && (content.startsWith(GUILD_CHAT_PREFIX1) || content.startsWith(GUILD_CHAT_PREFIX2))) {
+            if (!content.isEmpty() && (content.startsWith(GUILD_CHAT_PREFIX_FLAG) || content.startsWith(GUILD_CHAT_PREFIX_FLAGPOLE))) {
                 if (style.getColor() != null) {
                     String colorName = style.getColor().getName();
                     if (COLOR.equalsIgnoreCase(colorName)) {

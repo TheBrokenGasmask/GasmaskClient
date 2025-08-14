@@ -7,17 +7,17 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import java.util.Map;
+
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class SocketMessageHandler {
-    public static final String CHAT_PREFIX = "\udaff\udffc\ue006\udaff\udfff\ue002\udaff\udffe";
-
     private static final Pattern URL_PATTERN = Pattern.compile(
             "https?://(?:[-\\w.])+(?:[:\\d]+)?(?:/(?:[\\w/_.])*(?:\\?(?:[&\\w._=-])*)?(?:#(?:[\\w._-]*))?)?"
     );
+
+    public static boolean lastMessageIsGuildChat = false;
 
     public static void announceToClient(Boolean guildAlert, String body) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -27,7 +27,7 @@ public class SocketMessageHandler {
             return;
         }
 
-        MutableText chatPrefix = Text.literal(CHAT_PREFIX)
+        MutableText chatPrefix = Text.literal(getChatPrefix())
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
                         .withFont(Identifier.of("minecraft", "chat/prefix")));
@@ -68,9 +68,8 @@ public class SocketMessageHandler {
 
         GameMessageS2CPacket packet = new GameMessageS2CPacket(finalMessage, false);
 
-        client.execute(() -> {
-            networkHandler.onGameMessage(packet);
-        });
+        client.execute(() -> networkHandler.onGameMessage(packet));
+        lastMessageIsGuildChat = true;
     }
 
     public static void messageToClient(String name, String rankName, String body) {
@@ -87,7 +86,7 @@ public class SocketMessageHandler {
         }
         Rank rank = rankOptional.get();
 
-        MutableText chatPrefix = Text.literal(CHAT_PREFIX)
+        MutableText chatPrefix = Text.literal(getChatPrefix())
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
                         .withFont(Identifier.of("minecraft", "chat/prefix")));
@@ -123,9 +122,8 @@ public class SocketMessageHandler {
 
         GameMessageS2CPacket packet = new GameMessageS2CPacket(finalMessage, false);
 
-        client.execute(() -> {
-            networkHandler.onGameMessage(packet);
-        });
+        client.execute(() -> networkHandler.onGameMessage(packet));
+        lastMessageIsGuildChat = true;
     }
 
     private static MutableText parseUrls(String text) {
@@ -176,5 +174,9 @@ public class SocketMessageHandler {
         }
 
         return result;
+    }
+
+    private static String getChatPrefix() {
+        return lastMessageIsGuildChat ? DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE : DiscordBridge.GUILD_CHAT_PREFIX_FLAG;
     }
 }

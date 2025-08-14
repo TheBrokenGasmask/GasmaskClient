@@ -3,6 +3,7 @@ package dev.wiji.wynntracker.mixin.client;
 import dev.wiji.wynntracker.controllers.AspectReport;
 import dev.wiji.wynntracker.controllers.DiscordBridge;
 import dev.wiji.wynntracker.controllers.RaidReport;
+import dev.wiji.wynntracker.controllers.SocketMessageHandler;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.text.Text;
@@ -17,22 +18,17 @@ public class ChatMixin {
     @Inject(method = "onGameMessage", at = @At("HEAD"))
     private void onGameMessagePacket(GameMessageS2CPacket packet, CallbackInfo ci) {
 
-        if (packet.overlay()) {
-            return;
-        }
+        if (packet.overlay()) return;
 
         String threadName = Thread.currentThread().getName();
-        if (!threadName.startsWith("Netty Client IO")) {
-            return;
-        }
+        if (!threadName.startsWith("Netty Client IO")) return;
 
         Text message = packet.content();
         RaidReport.parseChatMessage(message);
         AspectReport.parseChatMessage(message);
         String username = DiscordBridge.parseChatMessage(message);
 
-        if (username != null) {
-            System.out.println("WynnTracker: Message from " + username);
-        }
+        if (username != null) System.out.println("WynnTracker: Message from " + username);
+
     }
 }

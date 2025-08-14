@@ -25,19 +25,13 @@ public class GuildChatModifier {
     }
 
     public static Text modifyGuildMessage(Text originalMessage) {
-        if (originalMessage.getSiblings().size() < 3) {
-            return originalMessage;
-        }
+        if (originalMessage.getSiblings().size() < 3) return originalMessage;
 
         String username = getUsername(originalMessage);
-        if (username == null) {
-            return originalMessage;
-        }
+        if (username == null) return originalMessage;
 
         Rank customRank = isCustomRank(username);
-        if (customRank != null) {
-            return modifyCustomRankChat(originalMessage, customRank);
-        }
+        if (customRank != null) return modifyCustomRankChat(originalMessage, customRank);
 
         String rankText = originalMessage.getSiblings().get(2).getString();
 
@@ -49,9 +43,7 @@ public class GuildChatModifier {
             }
         }
 
-        if (matchedRank == null) {
-            return originalMessage;
-        }
+        if (matchedRank == null) return originalMessage;
 
         return modifyChat(originalMessage, matchedRank);
     }
@@ -111,7 +103,14 @@ public class GuildChatModifier {
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
             Text sibling = originalMessage.getSiblings().get(i);
 
-            if (i == 2) {
+            if (i == 0) {
+                String chatPrefix = sibling.getString();
+                Style originalStyle = sibling.getStyle();
+                if (chatPrefix.contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG) && SocketMessageHandler.lastMessageIsGuildChat)
+                    modifiedMessage.append(Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)).setStyle(originalStyle);
+                else
+                    modifiedMessage.append(sibling);
+            } else if (i == 2) {
                 Style originalStyle = sibling.getStyle();
                 Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
                 MutableText modifiedSibling = Text.literal(customBackground).setStyle(newStyle);
@@ -145,7 +144,14 @@ public class GuildChatModifier {
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
             Text sibling = originalMessage.getSiblings().get(i);
 
-            if (i == 2) {
+            if (i == 0) {
+                String chatPrefix = sibling.getString();
+                Style originalStyle = sibling.getStyle();
+                if (chatPrefix.contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG) && SocketMessageHandler.lastMessageIsGuildChat)
+                    modifiedMessage.append(Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)).setStyle(originalStyle);
+                else
+                    modifiedMessage.append(sibling);
+            } else if (i == 2) {
                 Style originalStyle = sibling.getStyle();
                 Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
                 MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);

@@ -1,6 +1,8 @@
 package dev.wiji.wynntracker.mixin.client;
 
+import dev.wiji.wynntracker.controllers.DiscordBridge;
 import dev.wiji.wynntracker.controllers.GuildChatModifier;
+import dev.wiji.wynntracker.controllers.SocketMessageHandler;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,14 +21,6 @@ public class ChatHudMixin {
             return;
         }
 
-        System.out.println("processing message: " + message.getString());
-        System.out.println("sibling count: " + message.getSiblings().size());
-
-        for (int i = 0; i < message.getSiblings().size(); i++) {
-            Text sibling = message.getSiblings().get(i);
-            System.out.println("sibling " + i + ": \"" + sibling.getString() + "\" - style: " + sibling.getStyle());
-        }
-
         Text modifiedMessage = GuildChatModifier.modifyGuildMessage(message);
 
         if (modifiedMessage != message) {
@@ -39,5 +33,8 @@ public class ChatHudMixin {
                 isProcessing = false;
             }
         }
+
+        SocketMessageHandler.lastMessageIsGuildChat = message.getString().contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG)
+                || message.getString().contains(DiscordBridge.DISCORD_MESSAGE_SEQUENCE);
     }
 }
