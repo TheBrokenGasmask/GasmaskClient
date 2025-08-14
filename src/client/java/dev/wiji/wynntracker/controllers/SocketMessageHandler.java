@@ -115,6 +115,7 @@ public class SocketMessageHandler {
                         .withColor(rank.getNameColor())
                         .withFont(Identifier.of("minecraft", "default")));
 
+        //TODO: This text auto-wraps and doesnt include the prefix
         MutableText bodyComponent = Text.literal(" ").append(parseUrls(body));
 
         MutableText finalMessage = chatPrefix

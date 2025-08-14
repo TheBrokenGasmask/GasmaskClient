@@ -31,21 +31,8 @@ public class GuildChatModifier {
         if (username == null) return originalMessage;
 
         Rank customRank = isCustomRank(username);
-        if (customRank != null) return modifyCustomRankChat(originalMessage, customRank);
-
-        String rankText = originalMessage.getSiblings().get(2).getString();
-
-        Rank matchedRank = null;
-        for (Rank rank : Rank.values()) {
-            if (rank.getBackgroundText().equals(rankText)) {
-                matchedRank = rank;
-                break;
-            }
-        }
-
-        if (matchedRank == null) return originalMessage;
-
-        return modifyChat(originalMessage, matchedRank);
+        if (customRank == null) return originalMessage;
+        return modifyCustomRankChat(originalMessage, customRank);
     }
 
     private static String getUsername(Text text) {
@@ -102,6 +89,7 @@ public class GuildChatModifier {
 
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
             Text sibling = originalMessage.getSiblings().get(i);
+            System.out.println("Processing siblings " + i + ": " + sibling.getString());
 
             if (i == 0) {
                 String chatPrefix = sibling.getString();
@@ -129,49 +117,7 @@ public class GuildChatModifier {
                 modifiedMessage.append(modifiedSibling);
 
             } else {
-                modifiedMessage.append(sibling);
-            }
-        }
-        return modifiedMessage;
-    }
-
-    private static Text modifyChat(Text originalMessage, Rank rank) {
-        int rankColorValue = rank.getRankColor();
-        int nameColorValue = rank.getNameColor();
-
-        MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
-
-        for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
-            Text sibling = originalMessage.getSiblings().get(i);
-
-            if (i == 0) {
-                String chatPrefix = sibling.getString();
-                Style originalStyle = sibling.getStyle();
-                if (chatPrefix.contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG) && SocketMessageHandler.lastMessageIsGuildChat)
-                    modifiedMessage.append(Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)).setStyle(originalStyle);
-                else
-                    modifiedMessage.append(sibling);
-            } else if (i == 2) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
-                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else if (i == 3) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
-                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else if (isName(sibling)) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(nameColorValue));
-                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else {
                 modifiedMessage.append(modifyTextColor(sibling));
-
             }
         }
         return modifiedMessage;
