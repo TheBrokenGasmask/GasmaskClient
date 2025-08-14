@@ -31,8 +31,21 @@ public class GuildChatModifier {
         if (username == null) return originalMessage;
 
         Rank customRank = isCustomRank(username);
-        if (customRank == null) return originalMessage;
-        return modifyCustomRankChat(originalMessage, customRank);
+        if (customRank != null) return modifyCustomRankChat(originalMessage, customRank);
+
+        String rankText = originalMessage.getSiblings().get(2).getString();
+
+        Rank matchedRank = null;
+        for (Rank rank : Rank.values()) {
+            if (rank.getBackgroundText().equals(rankText)) {
+                matchedRank = rank;
+                break;
+            }
+        }
+
+        if (matchedRank == null) return originalMessage;
+
+        return modifyChat(originalMessage, matchedRank);
     }
 
     private static String getUsername(Text text) {
@@ -80,47 +93,53 @@ public class GuildChatModifier {
     }
 
     private static Text modifyCustomRankChat(Text originalMessage, Rank customRank) {
-        int rankColorValue = customRank.getRankColor();
-        int nameColorValue = customRank.getNameColor();
-        String customBackground = customRank.getBackgroundText();
-        String customForeground = customRank.getForegroundText();
+        return modifyMessageWithRank(originalMessage, customRank, true);
+    }
+
+    private static Text modifyChat(Text originalMessage, Rank rank) {
+        return modifyMessageWithRank(originalMessage, rank, false);
+    }
+
+    private static Text modifyMessageWithRank(Text originalMessage, Rank rank, boolean useCustomText) {
+        int rankColorValue = rank.getRankColor();
+        int nameColorValue = rank.getNameColor();
+        String rankBackgroundText = useCustomText ? rank.getBackgroundText() : null;
+        String rankForegroundText = useCustomText ? rank.getForegroundText() : null;
 
         MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
 
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
             Text sibling = originalMessage.getSiblings().get(i);
-            System.out.println("Processing siblings " + i + ": " + sibling.getString());
-
-            if (i == 0) {
-                String chatPrefix = sibling.getString();
-                Style originalStyle = sibling.getStyle();
-                if (chatPrefix.contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG) && SocketMessageHandler.lastMessageIsGuildChat)
-                    modifiedMessage.append(Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)).setStyle(originalStyle);
-                else
-                    modifiedMessage.append(sibling);
-            } else if (i == 2) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0x242424));
-                MutableText modifiedSibling = Text.literal(customBackground).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else if (i == 3) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(rankColorValue));
-                MutableText modifiedSibling = Text.literal(customForeground).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else if (isName(sibling)) {
-                Style originalStyle = sibling.getStyle();
-                Style newStyle = originalStyle.withColor(TextColor.fromRgb(nameColorValue));
-                MutableText modifiedSibling = Text.literal(sibling.getString()).setStyle(newStyle);
-                modifiedMessage.append(modifiedSibling);
-
-            } else {
-                modifiedMessage.append(modifyTextColor(sibling));
-            }
+            modifiedMessage.append(processSibling(sibling, i, rankColorValue, nameColorValue, rankBackgroundText, rankForegroundText));
         }
         return modifiedMessage;
+    }
+
+    private static Text processSibling(Text sibling, int index, int rankColorValue, int nameColorValue, String rankBackgroundText, String rankForegroundText) {
+        if (index == 0) {
+            return processChatPrefix(sibling);
+        } else if (index == 2) {
+            return createStyledText(rankBackgroundText != null ? rankBackgroundText : sibling.getString(), sibling.getStyle(), 0x242424);
+        } else if (index == 3) {
+            return createStyledText(rankForegroundText != null ? rankForegroundText : sibling.getString(), sibling.getStyle(), rankColorValue);
+        } else if (isName(sibling)) {
+            return createStyledText(sibling.getString(), sibling.getStyle(), nameColorValue);
+        } else {
+            return modifyTextColor(sibling);
+        }
+    }
+
+    private static Text processChatPrefix(Text sibling) {
+        String chatPrefix = sibling.getString();
+        if (chatPrefix.contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAG) && SocketMessageHandler.lastMessageIsGuildChat) {
+            return Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE).setStyle(sibling.getStyle());
+        }
+        return sibling;
+    }
+
+    private static MutableText createStyledText(String text, Style originalStyle, int color) {
+        Style newStyle = originalStyle.withColor(TextColor.fromRgb(color));
+        return Text.literal(text).setStyle(newStyle);
     }
 
     private static MutableText modifyTextColor(Text sibling) {
