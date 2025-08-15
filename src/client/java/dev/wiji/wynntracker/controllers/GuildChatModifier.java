@@ -168,12 +168,13 @@ public class GuildChatModifier {
     }
 
     private static boolean isName(Text sibling) {
-        String color = sibling.getStyle().getColor().getName();
-        boolean hasNameColor = "#00AAAA".equalsIgnoreCase(color);
+        TextColor color = sibling.getStyle().getColor();
+        if(color == null) return false;
 
-        if (!hasNameColor) {
-            return false;
-        }
+        boolean hasNameColor = "#00AAAA".equalsIgnoreCase(color.getName());
+
+        if (!hasNameColor) return false;
+
         return !sibling.getStyle().isUnderlined();
     }
 }
