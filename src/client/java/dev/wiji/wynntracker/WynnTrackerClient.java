@@ -8,6 +8,7 @@ import dev.wiji.wynntracker.controllers.Authentication;
 import dev.wiji.wynntracker.controllers.Config;
 import dev.wiji.wynntracker.controllers.PlayerManager;
 import dev.wiji.wynntracker.objects.ClientCommand;
+import dev.wiji.wynntracker.controllers.Updater;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -29,6 +30,7 @@ public class WynnTrackerClient implements ClientModInitializer {
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			Authentication.authInit();
+			Updater.checkForUpdates();
 		});
 
 		registerCommands();
