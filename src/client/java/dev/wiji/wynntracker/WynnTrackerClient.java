@@ -19,14 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WynnTrackerClient implements ClientModInitializer {
-	public static Config.ConfigData config_data;
+	public static Config.ConfigData configData;
 	private static final List<ClientCommand> commands = new ArrayList<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger("WynnTracker");
+
+	private static final String API_URL = "https://wynn.wiji.dev";
+	private static final String REPO_URL = "https://api.github.com/repos/wagwanbigmon/TBGMModClient/releases/latest";
+	private static final String MOD_ID = "wynntracker";
 
 	@Override
 	public void onInitializeClient() {
 
-		config_data = Config.getConfigData();
+		configData = Config.getConfigData();
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			Authentication.authInit();
@@ -54,7 +58,19 @@ public class WynnTrackerClient implements ClientModInitializer {
 		return commands;
 	}
 
-	public static void debug(String message) {
-		LOGGER.info("[DEBUG] " + message);
+	public static Logger getLogger() {
+		return LOGGER;
+	}
+
+	public static String getApiUrl() {
+		return API_URL;
+	}
+
+	public static String getRepoUrl() {
+		return REPO_URL;
+	}
+
+	public static String getModId() {
+		return MOD_ID;
 	}
 }

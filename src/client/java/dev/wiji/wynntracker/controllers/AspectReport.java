@@ -1,10 +1,8 @@
 package dev.wiji.wynntracker.controllers;
 
 import dev.wiji.wynntracker.WynnTrackerClient;
-import dev.wiji.wynntracker.enums.RaidType;
 import dev.wiji.wynntracker.misc.Misc;
 import dev.wiji.wynntracker.objects.Aspect;
-import dev.wiji.wynntracker.objects.Raid;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
@@ -17,7 +15,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +57,7 @@ public class AspectReport {
 		parameters.put("token", Authentication.token);
 
 		StringBuilder urlBuilder = new StringBuilder();
-		String baseUrl = WynnTrackerClient.config_data.apiUrl;
+		String baseUrl = WynnTrackerClient.getApiUrl();
 		if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 		urlBuilder.append(baseUrl).append("/api/report-aspect?");

@@ -6,8 +6,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.wiji.wynntracker.WynnTrackerClient;
-import dev.wiji.wynntracker.badge.BadgeManager;
-import dev.wiji.wynntracker.badge.CustomBadge;
 import dev.wiji.wynntracker.controllers.Authentication;
 import dev.wiji.wynntracker.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -54,7 +52,7 @@ public class LinkCommand extends AbstractClientCommand {
 	private void sendLinkRequest(FabricClientCommandSource source, String code) {
 		new Thread(() -> {
 			StringBuilder urlBuilder = new StringBuilder();
-			String baseUrl = WynnTrackerClient.config_data.apiUrl;
+			String baseUrl = WynnTrackerClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			urlBuilder.append(baseUrl).append("/api/verify-link?");

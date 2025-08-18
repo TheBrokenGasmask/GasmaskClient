@@ -3,7 +3,6 @@ package dev.wiji.wynntracker.controllers;
 import com.google.gson.Gson;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -19,51 +18,41 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Config implements ModMenuApi {
-	private static final Path config_dir = Paths.get(MinecraftClient.getInstance().runDirectory.getPath() + "/config");
-	private static final Path config_file = Paths.get(config_dir + "/wynntracker.json");
-	private static ConfigData config_data;
+	private static final Path configDir = Paths.get(MinecraftClient.getInstance().runDirectory.getPath() + "/config");
+	private static final Path configFile = Paths.get(configDir + "/wynntracker.json");
+	private static ConfigData configData;
 
 	public static ConfigData getConfigData() {
-		if (config_data != null) return config_data;
+		if (configData != null) return configData;
 
 		try {
-			if (!Files.exists(config_file)) {
-				Files.createDirectories(config_dir);
-				Files.createFile(config_file);
-				config_data = ConfigData.getDefault();
-				config_data.save();
-				return config_data;
+			if (!Files.exists(configFile)) {
+				Files.createDirectories(configDir);
+				Files.createFile(configFile);
+				configData = ConfigData.getDefault();
+				configData.save();
+				return configData;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			config_data = ConfigData.getDefault();
-			return config_data;
+			configData = ConfigData.getDefault();
+			return configData;
 		}
 		try {
 			Gson gson = new Gson();
-			FileReader reader = new FileReader(config_file.toFile());
-			config_data = gson.fromJson(reader, ConfigData.class);
+			FileReader reader = new FileReader(configFile.toFile());
+			configData = gson.fromJson(reader, ConfigData.class);
 		} catch (IOException e) {
 			e.printStackTrace();
-			config_data = ConfigData.getDefault();
+			configData = ConfigData.getDefault();
 		}
-		return config_data;
+		return configData;
 	}
 
 	public static Screen createConfigScreen(Screen parent) {
 		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(Text.literal("WynnTracker Config"));
 
-		ConfigCategory general = builder.getOrCreateCategory(Text.literal("General Config"));
-
-		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-
-		general.addEntry(entryBuilder.startStrField(Text.literal("Remote Server URL"), config_data.apiUrl).setDefaultValue("http://localhost:3000").setTooltip(Text.of("Set the Base URL of the remote server")).setSaveConsumer(newValue -> {
-			config_data.apiUrl = newValue;
-			Authentication.sendAuthRequest();
-		}).build());
-
-		builder.setSavingRunnable(config_data::save);
-
+		builder.setSavingRunnable(configData::save);
 		return builder.build();
 	}
 
@@ -73,20 +62,18 @@ public class Config implements ModMenuApi {
 	}
 
 	public static class ConfigData {
-		public String apiUrl;
+		public ConfigData() {
 
-		public ConfigData(String apiUrl) {
-			this.apiUrl = apiUrl;
 		}
 
 		public static ConfigData getDefault() {
-			return new ConfigData("http://localhost:3000");
+			return new ConfigData();
 		}
 
 		public void save() {
 			try {
 				Gson gson = new Gson();
-				FileWriter writer = new FileWriter(config_file.toFile());
+				FileWriter writer = new FileWriter(configFile.toFile());
 				gson.toJson(this, writer);
 				writer.flush();
 				writer.close();

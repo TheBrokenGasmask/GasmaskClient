@@ -40,7 +40,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 			UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
 
 			StringBuilder urlBuilder = new StringBuilder();
-			String baseUrl = WynnTrackerClient.config_data.apiUrl;
+			String baseUrl = WynnTrackerClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			urlBuilder.append(baseUrl).append("/api/toggle-aspects?");

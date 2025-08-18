@@ -42,7 +42,7 @@ public class UnlinkCommand extends AbstractClientCommand {
 	private void sendUnlinkRequest(FabricClientCommandSource source, String code) {
 		new Thread(() -> {
 			StringBuilder urlBuilder = new StringBuilder();
-			String baseUrl = WynnTrackerClient.config_data.apiUrl;
+			String baseUrl = WynnTrackerClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			urlBuilder.append(baseUrl).append("/api/unlink-minecraft?");

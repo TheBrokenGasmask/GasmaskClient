@@ -82,7 +82,7 @@ public class RaidReport {
 		for(int i = 0; i < raid.players.length; i++) parameters.put("player" + (i + 1), raid.players[i]);
 
 		StringBuilder urlBuilder = new StringBuilder();
-		String baseUrl = WynnTrackerClient.config_data.apiUrl;
+		String baseUrl = WynnTrackerClient.getApiUrl();
 		if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 		urlBuilder.append(baseUrl).append("/api/report-raid?");

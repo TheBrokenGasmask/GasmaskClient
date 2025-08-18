@@ -3,6 +3,7 @@ package dev.wiji.wynntracker.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.wiji.wynntracker.WynnTracker;
+import dev.wiji.wynntracker.WynnTrackerClient;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,14 +18,10 @@ import java.security.MessageDigest;
 import java.util.Scanner;
 
 public class Updater {
-    private static final String REPO_URL = "https://api.github.com/repos/wagwanbigmon/TBGMModClient/releases/latest";
-    private static final String MOD_ID = "wynntracker";
-
-
     public static void checkForUpdates() {
         new Thread(() -> {
             try {
-                URL url = URI.create(REPO_URL).toURL();
+                URL url = URI.create(WynnTrackerClient.getRepoUrl()).toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
@@ -76,7 +73,7 @@ public class Updater {
                 downloadConnection.setRequestMethod("GET");
                 downloadConnection.connect();
 
-                Path tempFile = Files.createTempFile(MOD_ID, ".jar");
+                Path tempFile = Files.createTempFile(WynnTrackerClient.getModId(), ".jar");
                 try (InputStream in = downloadConnection.getInputStream();
                      FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
                     byte[] buffer = new byte[1024];
@@ -95,7 +92,7 @@ public class Updater {
                 }
 
                 Path modsDir = new File(".").toPath().resolve("mods");
-                Path targetFile = modsDir.resolve(MOD_ID + "-" + latestVersion + ".jar");
+                Path targetFile = modsDir.resolve(WynnTrackerClient.getModId() + "-" + latestVersion + ".jar");
 
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     try {

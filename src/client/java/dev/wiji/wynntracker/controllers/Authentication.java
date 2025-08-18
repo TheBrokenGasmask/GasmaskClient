@@ -53,7 +53,7 @@ public class Authentication {
 	public static String getToken(String uuid) {
 		String token = "";
 		try {
-			String baseUrl = WynnTrackerClient.config_data.apiUrl;
+			String baseUrl = WynnTrackerClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/authenticate?uuid=" + uuid).toURL();
@@ -153,7 +153,7 @@ public class Authentication {
 		UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
 
 		try {
-			String baseUrl = WynnTrackerClient.config_data.apiUrl;
+			String baseUrl = WynnTrackerClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/is-authenticated?uuid=" + uuid).toURL();

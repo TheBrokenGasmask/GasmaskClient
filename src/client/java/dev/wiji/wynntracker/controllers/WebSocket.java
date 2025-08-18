@@ -3,6 +3,7 @@ package dev.wiji.wynntracker.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.wiji.wynntracker.WynnTrackerClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -71,7 +72,7 @@ public class WebSocket {
 
             CompletableFuture<Void> cf = new CompletableFuture<>();
             if (connectFutureRef.compareAndSet(existing, cf)) {
-                String httpUrl = Config.getConfigData().apiUrl;
+                String httpUrl = WynnTrackerClient.getApiUrl();
                 String wsUrl = convertHttpToWebSocketUrl(httpUrl);
 
                 if (wsUrl == null) {
