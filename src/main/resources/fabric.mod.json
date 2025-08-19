@@ -3,7 +3,7 @@
 	"id": "gasmask",
 	"version": "${version}",
 	"name": "Gasmask",
-	"description": "A Mod used to report Wynncraft Chat Data to a Remote Server",
+	"description": "A utility mod and Discord chat bridge for the TBGM Wynncraft guild",
 	"authors": [
 		"wiji",
 		"Iron"
@@ -17,7 +17,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.wiji.tbgm.GasmaskMain"
+			"dev.wiji.tbgm.GasmaskClient"
 		],
 		"client": [
 			"dev.wiji.tbgm.GasmaskMain"
