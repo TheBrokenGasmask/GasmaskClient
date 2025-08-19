@@ -1,34 +1,35 @@
 {
 	"schemaVersion": 1,
-	"id": "wynntracker",
+	"id": "gasmask",
 	"version": "${version}",
-	"name": "WynnTracker",
+	"name": "Gasmask",
 	"description": "A Mod used to report Wynncraft Chat Data to a Remote Server",
 	"authors": [
-		"wiji"
+		"wiji",
+		"Iron"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/wynntracker/icon.png",
+	"icon": "assets/tbgm/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.wiji.wynntracker.WynnTracker"
+			"dev.wiji.tbgm.GasmaskMain"
 		],
 		"client": [
-			"dev.wiji.wynntracker.WynnTrackerClient"
+			"dev.wiji.tbgm.GasmaskMain"
 		],
 		"modmenu": [
-			"dev.wiji.wynntracker.controllers.Config"
+			"dev.wiji.tbgm.controllers.Config"
 		]
 	},
 	"mixins": [
-		"wynntracker.mixins.json",
+		"tbgm.mixins.json",
 		{
-			"config": "wynntracker.client.mixins.json",
+			"config": "tbgm.client.mixins.json",
 			"environment": "client"
 		}
 	],
