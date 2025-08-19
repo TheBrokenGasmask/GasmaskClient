@@ -52,7 +52,11 @@ public class Config implements ModMenuApi {
 	public static Screen createConfigScreen(Screen parent) {
 		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(Text.literal("WynnTracker Config"));
 
+		ConfigCategory general = builder.getOrCreateCategory(Text.literal("General Config"));
+		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+
 		builder.setSavingRunnable(configData::save);
+
 		return builder.build();
 	}
 
