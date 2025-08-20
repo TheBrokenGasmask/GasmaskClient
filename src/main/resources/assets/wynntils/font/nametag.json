@@ -5,7 +5,7 @@
       "chars": [
         "\uE100"
       ],
-      "file": "wynntracker:font/default_logo.png",
+      "file": "tbgm:font/default_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -14,7 +14,7 @@
       "chars": [
         "\uE101"
       ],
-      "file": "wynntracker:font/recruit_logo.png",
+      "file": "tbgm:font/recruit_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -23,7 +23,7 @@
       "chars": [
         "\uE102"
       ],
-      "file": "wynntracker:font/recruiter_logo.png",
+      "file": "tbgm:font/recruiter_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -32,7 +32,7 @@
       "chars": [
         "\uE103"
       ],
-      "file": "wynntracker:font/captain_logo.png",
+      "file": "tbgm:font/captain_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -41,7 +41,7 @@
       "chars": [
         "\uE104"
       ],
-      "file": "wynntracker:font/officer_logo.png",
+      "file": "tbgm:font/officer_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -50,7 +50,7 @@
       "chars": [
         "\uE105"
       ],
-      "file": "wynntracker:font/strategist_logo.png",
+      "file": "tbgm:font/strategist_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -59,7 +59,7 @@
       "chars": [
         "\uE106"
       ],
-      "file": "wynntracker:font/advisor_logo.png",
+      "file": "tbgm:font/advisor_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -68,7 +68,7 @@
       "chars": [
         "\uE107"
       ],
-      "file": "wynntracker:font/chief_logo.png",
+      "file": "tbgm:font/chief_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -77,7 +77,7 @@
       "chars": [
         "\uE108"
       ],
-      "file": "wynntracker:font/council_logo.png",
+      "file": "tbgm:font/council_logo.png",
       "height": 8,
       "type": "bitmap"
     }

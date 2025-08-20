@@ -208,7 +208,7 @@ public class SocketMessageHandler {
         MutableText discordIcon = Text.literal(" ").append(Text.literal("\uEff1")
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.WHITE)
-                        .withFont(Identifier.of("wynntracker", "discord"))));
+                        .withFont(Identifier.of("tbgm", "discord"))));
         
         MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff" + rank.getBackgroundText())
                 .setStyle(Style.EMPTY
