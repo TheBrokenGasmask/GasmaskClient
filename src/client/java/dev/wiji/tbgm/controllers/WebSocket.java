@@ -22,13 +22,21 @@ public class WebSocket {
     private final AtomicBoolean shouldReconnect = new AtomicBoolean(true);
     private final AtomicReference<CompletableFuture<Void>> connectFutureRef = new AtomicReference<>(null);
     private final AtomicBoolean reconnectScheduled = new AtomicBoolean(false);
+    private final AtomicBoolean authenticationInProgress = new AtomicBoolean(false);
+
     private static final int MAX_RECONNECT_ATTEMPTS = 5;
     private static final int RECONNECT_DELAY_MS = 5000;
+    private static final int HEARTBEAT_INTERVAL_MS = 30000;
+    private static final int HEARTBEAT_TIMEOUT_MS = 45000;
+
     private volatile int reconnectAttempts = 0;
+    private volatile long lastHeartbeatSent = 0;
+    private volatile long lastHeartbeatReceived = 0;
+    private volatile ScheduledFuture<?> heartbeatTask;
 
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "Wynntracker-WebSocket");
+                Thread t = new Thread(r, "TBGM-Websocket");
                 t.setDaemon(true);
                 return t;
             });
@@ -72,60 +80,160 @@ public class WebSocket {
 
             CompletableFuture<Void> cf = new CompletableFuture<>();
             if (connectFutureRef.compareAndSet(existing, cf)) {
-                String httpUrl = GasmaskMain.getApiUrl();
-                String wsUrl = convertHttpToWebSocketUrl(httpUrl);
+                return validateTokenAndConnect(cf);
+            }
+        }
+    }
 
-                if (wsUrl == null) {
-                    connectFutureRef.compareAndSet(cf, null);
-                    cf.completeExceptionally(new IllegalArgumentException("Invalid URL"));
-                    return cf;
-                }
+    private CompletableFuture<Void> validateTokenAndConnect(CompletableFuture<Void> cf) {
+        return CompletableFuture.supplyAsync(() -> {
+            String currentToken = Authentication.token;
 
-                String authToken = Authentication.token;
-                if (authToken == null || authToken.isEmpty()) {
-                    connectFutureRef.compareAndSet(cf, null);
-                    cf.completeExceptionally(new IllegalArgumentException("No auth token available"));
-                    return cf;
+            if (currentToken == null || currentToken.isEmpty() || !Authentication.validateCurrentToken()) {
+                if (!authenticationInProgress.compareAndSet(false, true)) {
+                    return Authentication.waitForAuthentication();
                 }
 
                 try {
-                    this.wsUri = URI.create(wsUrl);
-                    httpClient.newWebSocketBuilder()
-                            .header("token", authToken)
-                            .buildAsync(wsUri, new WebSocketListener())
-                            .whenComplete((ws, ex) -> {
-                                if (ex != null) {
-                                    connectFutureRef.compareAndSet(cf, null);
-                                    isConnected.set(false);
-                                    System.err.println("Failed to connect to WebSocket: " + ex.getMessage());
-                                    cf.completeExceptionally(ex);
-                                } else {
-                                    this.webSocket = ws;
-                                    isConnected.set(true);
-                                    reconnectAttempts = 0;
-                                    System.out.println("WebSocket connected with auth token");
-                                    cf.complete(null);
-                                }
-                            });
-                } catch (Exception e) {
-                    connectFutureRef.compareAndSet(cf, null);
-                    cf.completeExceptionally(e);
+                    String newToken = Authentication.performAuthentication();
+                    if (newToken == null || newToken.isEmpty()) {
+                        throw new IllegalStateException("Failed to obtain valid authentication token");
+                    }
+                    return newToken;
+                } finally {
+                    authenticationInProgress.set(false);
                 }
-                return cf;
             }
+
+            return currentToken;
+        }, scheduler).thenCompose(token -> {
+            return CompletableFuture.supplyAsync(() -> {
+                String wsToken = Authentication.getWebSocketToken();
+                if (wsToken == null || wsToken.isEmpty()) {
+                    throw new IllegalStateException("Failed to get websocket token");
+                }
+                return wsToken;
+            }, scheduler);
+        }).thenCompose(wsToken -> {
+            return attemptWebSocketConnection(cf, wsToken);
+        }).exceptionally(ex -> {
+            connectFutureRef.compareAndSet(cf, null);
+            cf.completeExceptionally(ex);
+            return null;
+        });
+    }
+
+    private CompletableFuture<Void> attemptWebSocketConnection(CompletableFuture<Void> cf, String authToken) {
+        String httpUrl = GasmaskMain.getApiUrl();
+        String wsUrl = convertHttpToWebSocketUrl(httpUrl);
+
+        if (wsUrl == null) {
+            connectFutureRef.compareAndSet(cf, null);
+            cf.completeExceptionally(new IllegalArgumentException("Invalid URL"));
+            return cf;
+        }
+
+        try {
+            this.wsUri = URI.create(wsUrl);
+            httpClient.newWebSocketBuilder()
+                    .header("token", authToken)
+                    .buildAsync(wsUri, new WebSocketListener())
+                    .whenComplete((ws, ex) -> {
+                        if (ex != null) {
+                            connectFutureRef.compareAndSet(cf, null);
+                            isConnected.set(false);
+
+                            if (isAuthenticationError(ex)) {
+                                Authentication.invalidateToken();
+                                scheduleReconnectWithAuth();
+                            } else {
+                                scheduleReconnect();
+                            }
+                            cf.completeExceptionally(ex);
+                        } else {
+                            this.webSocket = ws;
+                            startHeartbeat();
+                            cf.complete(null);
+                        }
+                    });
+            return cf;
+        } catch (Exception e) {
+            connectFutureRef.compareAndSet(cf, null);
+            cf.completeExceptionally(e);
+            return cf;
+        }
+    }
+
+    private boolean isAuthenticationError(Throwable ex) {
+        String message = ex.getMessage();
+        return message != null && (
+                message.contains("401") ||
+                        message.contains("403") ||
+                        message.contains("Unauthorized") ||
+                        message.contains("Invalid authentication") ||
+                        message.contains("Authentication failed")
+        );
+    }
+
+    private void startHeartbeat() {
+        stopHeartbeat();
+
+        heartbeatTask = scheduler.scheduleAtFixedRate(() -> {
+            if (isConnected.get() && webSocket != null && !webSocket.isOutputClosed()) {
+                sendHeartbeat();
+                checkHeartbeatTimeout();
+            }
+        }, HEARTBEAT_INTERVAL_MS, HEARTBEAT_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+    private void stopHeartbeat() {
+        if (heartbeatTask != null && !heartbeatTask.isCancelled()) {
+            heartbeatTask.cancel(false);
+        }
+    }
+
+    private void sendHeartbeat() {
+        try {
+            lastHeartbeatSent = System.currentTimeMillis();
+            JsonObject heartbeat = new JsonObject();
+            heartbeat.addProperty("type", "heartbeat");
+            heartbeat.addProperty("timestamp", lastHeartbeatSent);
+
+            if (webSocket != null && !webSocket.isOutputClosed()) {
+                webSocket.sendText(heartbeat.toString(), true);
+            }
+        } catch (Exception e) {
+            handleConnectionLoss();
+        }
+    }
+
+    private void checkHeartbeatTimeout() {
+        long now = System.currentTimeMillis();
+        if (lastHeartbeatSent > 0 && lastHeartbeatReceived > 0) {
+            long timeSinceLastResponse = now - lastHeartbeatReceived;
+            long timeSinceLastSent = now - lastHeartbeatSent;
+
+            if (timeSinceLastSent < HEARTBEAT_TIMEOUT_MS && timeSinceLastResponse > HEARTBEAT_TIMEOUT_MS) {
+                handleConnectionLoss();
+            }
+        }
+    }
+
+    private void handleConnectionLoss() {
+        if (isConnected.compareAndSet(true, false)) {
+            stopHeartbeat();
+            scheduleReconnect();
         }
     }
 
     private void scheduleReconnect() {
         if (!shouldReconnect.get()) return;
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-            System.err.println("Max reconnection attempts reached or reconnection disabled");
             return;
         }
         if (!reconnectScheduled.compareAndSet(false, true)) return;
 
         reconnectAttempts++;
-        System.out.println("Scheduling WebSocket reconnection attempt " + reconnectAttempts + "/" + MAX_RECONNECT_ATTEMPTS + " in " + RECONNECT_DELAY_MS + "ms");
 
         scheduler.schedule(() -> {
             reconnectScheduled.set(false);
@@ -135,8 +243,27 @@ public class WebSocket {
         }, RECONNECT_DELAY_MS, TimeUnit.MILLISECONDS);
     }
 
+    private void scheduleReconnectWithAuth() {
+        if (!shouldReconnect.get()) return;
+        if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            return;
+        }
+        if (!reconnectScheduled.compareAndSet(false, true)) return;
+
+        reconnectAttempts++;
+
+        scheduler.schedule(() -> {
+            reconnectScheduled.set(false);
+            if (shouldReconnect.get() && !isConnected.get()) {
+                Authentication.invalidateToken();
+                connectSingleFlight();
+            }
+        }, RECONNECT_DELAY_MS, TimeUnit.MILLISECONDS);
+    }
+
     public void disconnect() {
         shouldReconnect.set(false);
+        stopHeartbeat();
         CompletableFuture<Void> cf = connectFutureRef.getAndSet(null);
         if (webSocket != null && isConnected.get()) {
             try {
@@ -151,12 +278,16 @@ public class WebSocket {
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
             ws.sendText(message, true);
         } else {
-            System.err.println("WebSocket is not connected. Cannot send message: " + message);
+            if (shouldReconnect.get()) {
+                handleConnectionLoss();
+            }
         }
     }
 
     public boolean isConnected() {
-        return isConnected.get();
+        boolean atomicConnected = isConnected.get();
+        boolean wsValid = webSocket != null && !webSocket.isOutputClosed();
+        return atomicConnected && wsValid;
     }
 
     public String getWebSocketUrl() {
@@ -166,47 +297,72 @@ public class WebSocket {
     private class WebSocketListener implements Listener {
         @Override
         public void onOpen(java.net.http.WebSocket webSocket) {
-            System.out.println("WebSocket connection opened to: " + wsUri);
-            System.out.println("WebSocket connection successful");
+            isConnected.set(true);
+            lastHeartbeatReceived = System.currentTimeMillis();
             Listener.super.onOpen(webSocket);
         }
 
         @Override
         public CompletionStage<?> onText(java.net.http.WebSocket webSocket, CharSequence data, boolean last) {
-            System.out.println("Received WebSocket message: " + data);
-            processIncomingMessage(data.toString());
+            try {
+                JsonObject json = JsonParser.parseString(data.toString()).getAsJsonObject();
+                if (json.has("type") && "heartbeat_response".equals(json.get("type").getAsString())) {
+                    lastHeartbeatReceived = System.currentTimeMillis();
+                } else {
+                    processIncomingMessage(data.toString());
+                }
+            } catch (Exception e) {
+                processIncomingMessage(data.toString());
+            }
+
             webSocket.request(1);
             return null;
         }
 
         @Override
         public CompletionStage<?> onBinary(java.net.http.WebSocket webSocket, ByteBuffer data, boolean last) {
-            System.out.println("Received WebSocket binary data");
             webSocket.request(1);
             return null;
         }
 
         @Override
         public CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
-            System.out.println("WebSocket connection closed: " + statusCode + " - " + reason);
             isConnected.set(false);
+            stopHeartbeat();
 
-            // Trigger reconnection if it wasn't a normal client disconnect
+            boolean authError = (statusCode == 1008) || (reason != null && (
+                    reason.contains("Invalid authentication") ||
+                            reason.contains("Authentication failed") ||
+                            reason.contains("Unauthorized") ||
+                            reason.contains("Token not found") ||
+                            reason.contains("Missing authentication token")
+            ));
+
             boolean replaced = (reason != null && reason.contains("New connection established"));
+
             if (shouldReconnect.get() && statusCode != java.net.http.WebSocket.NORMAL_CLOSURE && !replaced) {
-                System.out.println("WebSocket connection lost, attempting to reconnect...");
-                scheduleReconnect();
+                if (authError) {
+                    Authentication.invalidateToken();
+                    scheduleReconnectWithAuth();
+                } else {
+                    scheduleReconnect();
+                }
             }
             return Listener.super.onClose(webSocket, statusCode, reason);
         }
 
         @Override
         public void onError(java.net.http.WebSocket webSocket, Throwable error) {
-            System.err.println("WebSocket error: " + error.getMessage());
             isConnected.set(false);
+            stopHeartbeat();
+
             if (shouldReconnect.get()) {
-                System.out.println("WebSocket error occurred, attempting to reconnect...");
-                scheduleReconnect();
+                if (isAuthenticationError(error)) {
+                    Authentication.invalidateToken();
+                    scheduleReconnectWithAuth();
+                } else {
+                    scheduleReconnect();
+                }
             }
             Listener.super.onError(webSocket, error);
         }
@@ -249,9 +405,10 @@ public class WebSocket {
         java.net.http.WebSocket ws = this.webSocket;
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
             ws.sendText(jsonMessage, true);
-            System.out.println("Sent chat message: " + jsonMessage);
         } else {
-            System.err.println("WebSocket is not connected. Cannot send chat message: " + jsonMessage);
+            if (shouldReconnect.get()) {
+                handleConnectionLoss();
+            }
         }
     }
 
