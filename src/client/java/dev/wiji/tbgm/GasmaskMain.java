@@ -23,7 +23,7 @@ public class GasmaskMain implements ClientModInitializer {
 	private static final List<ClientCommand> commands = new ArrayList<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger("WynnTracker");
 
-	private static final String API_URL = "https://wynn.wiji.dev";
+	private static final String API_URL = "http://localhost:3000";
 	private static final String REPO_URL = "https://api.github.com/repos/wagwanbigmon/TBGMModClient/releases/latest";
 	private static final String MOD_ID = "wynntracker";
 

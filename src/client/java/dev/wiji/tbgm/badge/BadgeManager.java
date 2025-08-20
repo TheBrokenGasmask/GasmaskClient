@@ -132,24 +132,15 @@ public class BadgeManager {
     @SuppressWarnings("unchecked")
     private static void clearPlayerFromLeaderboard(UUID playerUuid) {
         try {
-            Map<UUID, List<LeaderboardBadge>> currentMap = 
-                (Map<UUID, List<LeaderboardBadge>>) leaderboardField.get(Services.Leaderboard);
-            
+            Map<UUID, List<LeaderboardBadge>> currentMap =
+                    (Map<UUID, List<LeaderboardBadge>>) leaderboardField.get(Services.Leaderboard);
+
             Map<UUID, List<LeaderboardBadge>> newMap = new HashMap<>(currentMap);
-            
-            // Get the original wynntils badges before we started adding custom ones
-            List<LeaderboardBadge> originalBadges = getOriginalWynntilsBadges(playerUuid, currentMap);
-            
-            if (originalBadges.isEmpty()) {
-                // If no original badges, remove the player entirely
-                newMap.remove(playerUuid);
-            } else {
-                // Restore only the original wynntils badges
-                newMap.put(playerUuid, originalBadges);
-            }
-            
+
+            newMap.remove(playerUuid);
+
             leaderboardField.set(Services.Leaderboard, newMap);
-            
+
         } catch (Exception e) {
             System.err.println("Failed to clear player from leaderboard: " + e.getMessage());
         }
