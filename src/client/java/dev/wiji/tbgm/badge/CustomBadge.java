@@ -4,7 +4,6 @@ import com.wynntils.services.leaderboard.type.LeaderboardType;
 
 public enum CustomBadge {
     
-    // Temporarily disabled custom coloring - using white (0xFFFFFF) for all badges
     TNA_TOP_1("TNA Top 1", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.GOLD),
     TNA_TOP_2("TNA Top 2", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.SILVER),
     TNA_TOP_3("TNA Top 3", 0xFFFFFF, LeaderboardType.TNA_COMPLETION, BaseType.BRONZE),
@@ -20,6 +19,10 @@ public enum CustomBadge {
     NOTG_TOP_1("NOTG Top 1", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.GOLD),
     NOTG_TOP_2("NOTG Top 2", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.SILVER),
     NOTG_TOP_3("NOTG Top 3", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.BRONZE),
+
+    ALL_TOP_1("All Top 1", 0xFFFFFF, LeaderboardType.TNA_SCORE, BaseType.GOLD),
+    ALL_TOP_2("All Top 2", 0xFFFFFF, LeaderboardType.TCC_SCORE, BaseType.GOLD),
+    ALL_TOP_3("All Top 3", 0xFFFFFF, LeaderboardType.NOL_SCORE, BaseType.GOLD)
     ;
 
     public enum BaseType {
