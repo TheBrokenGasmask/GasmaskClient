@@ -75,8 +75,10 @@ public class WebSocket {
 
         for (;;) {
             CompletableFuture<Void> existing = connectFutureRef.get();
-            if (existing != null && !existing.isDone()) return existing;
-            if (existing != null && existing.isDone() && !existing.isCompletedExceptionally()) return existing;
+
+            if (existing != null) {
+                if (!existing.isDone()) return existing;
+            }
 
             CompletableFuture<Void> cf = new CompletableFuture<>();
             if (connectFutureRef.compareAndSet(existing, cf)) {
@@ -96,7 +98,7 @@ public class WebSocket {
 
                 try {
                     String newToken = Authentication.performAuthentication();
-                    if (newToken == null || newToken.isEmpty()) {
+                    if (newToken.isEmpty()) {
                         throw new IllegalStateException("Failed to obtain valid authentication token");
                     }
                     return newToken;
@@ -106,18 +108,12 @@ public class WebSocket {
             }
 
             return currentToken;
-        }, scheduler).thenCompose(token -> {
-            return CompletableFuture.supplyAsync(() -> {
-                String wsToken = Authentication.getWebSocketToken();
-                if (wsToken == null || wsToken.isEmpty()) {
-                    throw new IllegalStateException("Failed to get websocket token");
-                }
-                return wsToken;
-            }, scheduler);
-        }).thenCompose(wsToken -> {
-            return attemptWebSocketConnection(cf, wsToken);
-        }).exceptionally(ex -> {
-            connectFutureRef.compareAndSet(cf, null);
+        }, scheduler).thenCompose(token -> CompletableFuture.supplyAsync(() -> {
+			String wsToken = Authentication.getWebSocketToken();
+			if (wsToken == null || wsToken.isEmpty()) throw new IllegalStateException("Failed to get websocket token");
+			return wsToken;
+		}, scheduler)).thenCompose(wsToken -> attemptWebSocketConnection(cf, wsToken)).exceptionally(ex -> {
+            connectFutureRef.set(null);
             cf.completeExceptionally(ex);
             return null;
         });
@@ -128,7 +124,7 @@ public class WebSocket {
         String wsUrl = convertHttpToWebSocketUrl(httpUrl);
 
         if (wsUrl == null) {
-            connectFutureRef.compareAndSet(cf, null);
+            connectFutureRef.set(null);
             cf.completeExceptionally(new IllegalArgumentException("Invalid URL"));
             return cf;
         }
@@ -140,7 +136,7 @@ public class WebSocket {
                     .buildAsync(wsUri, new WebSocketListener())
                     .whenComplete((ws, ex) -> {
                         if (ex != null) {
-                            connectFutureRef.compareAndSet(cf, null);
+                            connectFutureRef.set(null);
                             isConnected.set(false);
 
                             if (isAuthenticationError(ex)) {
@@ -158,7 +154,7 @@ public class WebSocket {
                     });
             return cf;
         } catch (Exception e) {
-            connectFutureRef.compareAndSet(cf, null);
+            connectFutureRef.set(null);
             cf.completeExceptionally(e);
             return cf;
         }
@@ -222,6 +218,7 @@ public class WebSocket {
     private void handleConnectionLoss() {
         if (isConnected.compareAndSet(true, false)) {
             stopHeartbeat();
+            connectFutureRef.set(null);
             scheduleReconnect();
         }
     }
@@ -278,9 +275,7 @@ public class WebSocket {
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
             ws.sendText(message, true);
         } else {
-            if (shouldReconnect.get()) {
-                handleConnectionLoss();
-            }
+            if (shouldReconnect.get()) handleConnectionLoss();
         }
     }
 
@@ -327,7 +322,9 @@ public class WebSocket {
 
         @Override
         public CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
+            Authentication.WS_CONNECT_FUTURE.set(null);
             isConnected.set(false);
+            connectFutureRef.set(null);
             stopHeartbeat();
 
             boolean authError = (statusCode == 1008) || (reason != null && (
@@ -353,7 +350,9 @@ public class WebSocket {
 
         @Override
         public void onError(java.net.http.WebSocket webSocket, Throwable error) {
+            Authentication.WS_CONNECT_FUTURE.set(null);
             isConnected.set(false);
+            connectFutureRef.set(null);
             stopHeartbeat();
 
             if (shouldReconnect.get()) {
@@ -406,9 +405,7 @@ public class WebSocket {
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
             ws.sendText(jsonMessage, true);
         } else {
-            if (shouldReconnect.get()) {
-                handleConnectionLoss();
-            }
+            if (shouldReconnect.get()) handleConnectionLoss();
         }
     }
 

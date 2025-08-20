@@ -21,7 +21,7 @@ public class Authentication {
 
 	private static final AtomicBoolean INIT_STARTED = new AtomicBoolean(false);
 	private static final AtomicReference<CompletableFuture<String>> AUTH_IN_FLIGHT = new AtomicReference<>(null);
-	private static final AtomicReference<CompletableFuture<Void>> WS_CONNECT_FUTURE = new AtomicReference<>(null);
+	public static final AtomicReference<CompletableFuture<Void>> WS_CONNECT_FUTURE = new AtomicReference<>(null);
 	private static final AtomicBoolean TOKEN_VALIDATED = new AtomicBoolean(false);
 
 	private static final ScheduledExecutorService AUTH_EXEC =
