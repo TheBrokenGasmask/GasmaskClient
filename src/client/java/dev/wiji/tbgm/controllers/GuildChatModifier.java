@@ -163,6 +163,10 @@ public class GuildChatModifier {
                 return false;
             }
         }
+
+        if (style.isUnderlined() && style.getClickEvent() == null) {
+            return false;
+        }
         return true;
     }
 

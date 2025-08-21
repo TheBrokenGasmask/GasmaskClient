@@ -3,7 +3,7 @@ package dev.wiji.tbgm.controllers;
 import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,6 +109,22 @@ public class DiscordBridge {
 
     private static String getMessageBody(Text text) {
         StringBuilder fullText = new StringBuilder();
+        List<UrlClickEvent> urlClickEvents = new ArrayList<>();
+        final int[] position = {0};
+
+        text.visit((style, content) -> {
+            int startPos = position[0];
+            int endPos = startPos + content.length();
+
+            if (style.getClickEvent() != null &&
+                    style.getClickEvent().getAction().toString().equals("OPEN_URL")) {
+                String actualUrl = style.getClickEvent().getValue();
+                urlClickEvents.add(new UrlClickEvent(startPos, endPos, actualUrl));
+            }
+            position[0] = endPos;
+            return Optional.empty();
+        }, Style.EMPTY);
+
         text.visit((content) -> {
             fullText.append(content);
             return Optional.empty();
@@ -123,11 +139,50 @@ public class DiscordBridge {
 
             if (messageBody.startsWith(" ")) {
                 messageBody = messageBody.substring(1);
+                bodyStartIndex++;
             }
-            messageBody = getUnformattedString(messageBody);
 
-            return messageBody.isEmpty() ? null : messageBody;
+            Map<String, List<UrlClickEvent>> urlGroups = new HashMap<>();
+            for (UrlClickEvent event : urlClickEvents) {
+                if (event.startPos >= bodyStartIndex) {
+                    urlGroups.computeIfAbsent(event.actualUrl, k -> new ArrayList<>()).add(event);
+                }
+            }
+
+            String result = getUnformattedString(messageBody);
+            for (Map.Entry<String, List<UrlClickEvent>> entry : urlGroups.entrySet()) {
+                String actualUrl = entry.getKey();
+                List<UrlClickEvent> events = entry.getValue();
+                StringBuilder originalUrlText = new StringBuilder();
+                for (UrlClickEvent event : events) {
+                    int relativeStart = event.startPos - bodyStartIndex;
+                    int relativeEnd = event.endPos - bodyStartIndex;
+
+                    if (relativeStart >= 0 && relativeStart < messageBody.length()) {
+                        int safeEnd = Math.min(relativeEnd, messageBody.length());
+                        originalUrlText.append(messageBody.substring(relativeStart, safeEnd));
+                    }
+                }
+                String brokenUrl = getUnformattedString(originalUrlText.toString());
+
+                if (!brokenUrl.isEmpty() && result.contains(brokenUrl)) {
+                    result = result.replace(brokenUrl, actualUrl);
+                }
+            }
+            return result.isEmpty() ? null : result;
         }
         return null;
+    }
+
+    private static class UrlClickEvent {
+        final int startPos;
+        final int endPos;
+        final String actualUrl;
+
+        UrlClickEvent(int startPos, int endPos, String actualUrl) {
+            this.startPos = startPos;
+            this.endPos = endPos;
+            this.actualUrl = actualUrl;
+        }
     }
 }
