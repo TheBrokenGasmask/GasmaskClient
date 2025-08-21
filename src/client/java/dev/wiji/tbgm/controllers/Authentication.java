@@ -40,7 +40,7 @@ public class Authentication {
 				.thenCompose(tok -> connectWebSocketDebounced())
 				.exceptionally(ex -> {
 					var mc = MinecraftClient.getInstance();
-					if (mc.player != null) mc.player.sendMessage(Text.literal("§cWynntracker Authentication/Socket error: " + ex.getMessage()), false);
+					if (mc.player != null) mc.player.sendMessage(Text.literal("§cGasmask Authentication/Socket error: " + ex.getMessage()), false);
 					return null;
 				});
 
@@ -219,7 +219,7 @@ public class Authentication {
 				.thenCompose(tok -> connectWebSocketDebounced())
 				.exceptionally(ex -> {
 					var mc = MinecraftClient.getInstance();
-					if (mc.player != null) mc.player.sendMessage(Text.literal("§cWynntracker Authentication/Socket error: " + ex.getMessage()), false);
+					if (mc.player != null) mc.player.sendMessage(Text.literal("§cGasmask Authentication/Socket error: " + ex.getMessage()), false);
 					return null;
 				});
 	}

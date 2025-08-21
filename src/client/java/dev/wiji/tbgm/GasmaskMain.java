@@ -21,11 +21,11 @@ import java.util.List;
 public class GasmaskMain implements ClientModInitializer {
 	public static Config.ConfigData configData;
 	private static final List<ClientCommand> commands = new ArrayList<>();
-	private static final Logger LOGGER = LoggerFactory.getLogger("WynnTracker");
+	private static final Logger LOGGER = LoggerFactory.getLogger("Gasmask");
 
 	private static final String API_URL = "http://localhost:3000";
 	private static final String REPO_URL = "https://api.github.com/repos/wagwanbigmon/TBGMModClient/releases/latest";
-	private static final String MOD_ID = "wynntracker";
+	private static final String MOD_ID = "gasmask";
 
 	@Override
 	public void onInitializeClient() {

@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 
 public class Config implements ModMenuApi {
 	private static final Path configDir = Paths.get(MinecraftClient.getInstance().runDirectory.getPath() + "/config");
-	private static final Path configFile = Paths.get(configDir + "/wynntracker.json");
+	private static final Path configFile = Paths.get(configDir + "/gasmask.json");
 	private static ConfigData configData;
 
 	public static ConfigData getConfigData() {
@@ -50,7 +50,7 @@ public class Config implements ModMenuApi {
 	}
 
 	public static Screen createConfigScreen(Screen parent) {
-		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(Text.literal("WynnTracker Config"));
+		ConfigBuilder builder = ConfigBuilder.create().setParentScreen(parent).setTitle(Text.literal("Gasmask Config"));
 
 		ConfigCategory general = builder.getOrCreateCategory(Text.literal("General Config"));
 		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
