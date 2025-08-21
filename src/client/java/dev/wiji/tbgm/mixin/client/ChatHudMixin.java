@@ -2,13 +2,18 @@ package dev.wiji.tbgm.mixin.client;
 
 import dev.wiji.tbgm.controllers.DiscordBridge;
 import dev.wiji.tbgm.controllers.GuildChatModifier;
+import dev.wiji.tbgm.controllers.RankPromotionHandler;
 import dev.wiji.tbgm.controllers.SocketMessageHandler;
+import dev.wiji.tbgm.controllers.WebSocket;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Mixin(ChatHud.class)
 public class ChatHudMixin {
@@ -17,9 +22,8 @@ public class ChatHudMixin {
 
     @Inject(method = "addMessage", at = @At("HEAD"), cancellable = true)
     private void onAddMessage(Text message, CallbackInfo ci) {
-        if (isProcessing) {
-            return;
-        }
+        if (isProcessing) return;
+        RankPromotionHandler.handleChatMessage(message);
 
         Text modifiedMessage = GuildChatModifier.modifyGuildMessage(message);
 

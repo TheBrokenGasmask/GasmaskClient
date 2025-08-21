@@ -4,11 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.wiji.tbgm.GasmaskMain;
+import dev.wiji.tbgm.enums.Rank;
+import net.minecraft.client.MinecraftClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -273,6 +276,7 @@ public class WebSocket {
     public void sendMessage(String message) {
         java.net.http.WebSocket ws = this.webSocket;
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
+            System.out.println("Sending message: " + message);
             ws.sendText(message, true);
         } else {
             if (shouldReconnect.get()) handleConnectionLoss();
@@ -370,6 +374,7 @@ public class WebSocket {
     private void processIncomingMessage(String jsonMessage) {
         try {
             JsonObject json = JsonParser.parseString(jsonMessage).getAsJsonObject();
+            System.out.println("Received message: " + jsonMessage);
 
             if (json.has("type") && "discord_chat_message".equals(json.get("type").getAsString())) {
                 JsonObject data = json.getAsJsonObject("data");
@@ -389,6 +394,8 @@ public class WebSocket {
 
                     SocketMessageHandler.announceToClient(guildAlert, content);
                 }
+            } else if (json.has("type") && "rank_promotion_request".equals(json.get("type").getAsString())) {
+                RankPromotionHandler.handleRankPromotionRequest(json);
             }
         } catch (Exception e) {
             System.err.println("Error processing incoming message: " + e.getMessage());
@@ -407,6 +414,10 @@ public class WebSocket {
         } else {
             if (shouldReconnect.get()) handleConnectionLoss();
         }
+    }
+
+    public ScheduledExecutorService getScheduler() {
+        return scheduler;
     }
 
     public static class MessagePacket {
