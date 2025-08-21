@@ -44,6 +44,9 @@ public class HelpCommand extends AbstractClientCommand {
                 .executes(this::executeHelp)
                 .then(ClientCommandManager.argument("command", StringArgumentType.word())
                     .executes(this::executeHelpForCommand))));
+
+        dispatcher.register(ClientCommandManager.literal(PREFIX)
+                .executes(this::executeHelp));
     }
 
     private void sendMessage(Text message, boolean useFlag) {
@@ -53,9 +56,212 @@ public class HelpCommand extends AbstractClientCommand {
     }
 
     private void sendWrappedMessage(Text message, boolean useFlag) {
-        String[] lines = splitMessageToLines(message.getString(), CHARACTERS_PER_LINE);
-        for (int i = 0; i < lines.length; i++) {
-            sendMessage(Text.literal(lines[i]).setStyle(message.getStyle()), i == 0 && useFlag);
+        List<Text> wrappedLines = wrapTextPreservingStyle(message, CHARACTERS_PER_LINE);
+        for (int i = 0; i < wrappedLines.size(); i++) {
+            sendMessage(wrappedLines.get(i), i == 0 && useFlag);
+        }
+    }
+    
+    private void sendWrappedMessageManual(MutableText part1, MutableText part2, MutableText part3, boolean useFlag) {
+        // Combine the parts to get the full text for length calculation
+        String fullText = part1.getString() + part2.getString() + part3.getString();
+        
+        if (fullText.length() <= CHARACTERS_PER_LINE) {
+            // No wrapping needed
+            sendMessage(part1.append(part2).append(part3), useFlag);
+            return;
+        }
+        
+        // Manual wrapping preserving the three styled parts
+        List<String> lines = splitIntoLines(fullText, CHARACTERS_PER_LINE);
+        
+        String part1Text = part1.getString();
+        String part2Text = part2.getString();
+        String part3Text = part3.getString();
+        
+        int part1End = part1Text.length();
+        int part2End = part1End + part2Text.length();
+        
+        int currentPos = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            String lineText = lines.get(i);
+            MutableText lineComponent = Text.empty();
+            
+            int lineStart = currentPos;
+            int lineEnd = currentPos + lineText.length();
+            
+            // Add part1 content if it overlaps this line
+            if (lineStart < part1End) {
+                int start = Math.max(0, lineStart);
+                int end = Math.min(part1End, lineEnd);
+                if (end > start) {
+                    String content = part1Text.substring(start, end);
+                    if (!content.isEmpty()) {
+                        lineComponent.append(Text.literal(content).setStyle(part1.getStyle()));
+                    }
+                }
+            }
+            
+            // Add part2 content if it overlaps this line
+            if (lineStart < part2End && lineEnd > part1End) {
+                int start = Math.max(part1End, lineStart);
+                int end = Math.min(part2End, lineEnd);
+                if (end > start) {
+                    String content = part2Text.substring(start - part1End, end - part1End);
+                    if (!content.isEmpty()) {
+                        lineComponent.append(Text.literal(content).setStyle(part2.getStyle()));
+                    }
+                }
+            }
+            
+            // Add part3 content if it overlaps this line
+            if (lineEnd > part2End && lineStart < fullText.length()) {
+                int start = Math.max(part2End, lineStart);
+                int end = Math.min(fullText.length(), lineEnd);
+                if (end > start) {
+                    String content = part3Text.substring(start - part2End, end - part2End);
+                    if (!content.isEmpty()) {
+                        lineComponent.append(Text.literal(content).setStyle(part3.getStyle()));
+                    }
+                }
+            }
+            
+            sendMessage(lineComponent, i == 0 && useFlag);
+            
+            // Move to next line position - the splitIntoLines already handles space removal
+            currentPos += lineText.length();
+            // If there are more lines, we need to account for the space that was removed
+            if (i < lines.size() - 1) {
+                currentPos++; // Account for the space character that was skipped
+            }
+        }
+    }
+
+    private List<Text> wrapTextPreservingStyle(Text originalText, int maxWidth) {
+        List<Text> lines = new ArrayList<>();
+        String fullText = originalText.getString();
+        
+        if (fullText.length() <= maxWidth) {
+            lines.add(originalText);
+            return lines;
+        }
+        
+        // Collect all text components with their styles
+        List<TextComponent> components = new ArrayList<>();
+        collectTextComponents(originalText, components);
+        
+        // Split text while preserving component boundaries
+        List<String> textLines = splitIntoLines(fullText, maxWidth);
+        
+        // Rebuild each line with proper styling
+        int globalPos = 0;
+        for (String lineText : textLines) {
+            MutableText lineComponent = Text.empty();
+            int lineStart = globalPos;
+            int lineEnd = globalPos + lineText.length();
+            
+            for (TextComponent comp : components) {
+                // Find overlap between this component and current line
+                int compStart = comp.start;
+                int compEnd = comp.end;
+                
+                if (compStart < lineEnd && compEnd > lineStart) {
+                    // There's an overlap
+                    int overlapStart = Math.max(compStart, lineStart);
+                    int overlapEnd = Math.min(compEnd, lineEnd);
+                    
+                    String overlapText = fullText.substring(overlapStart, overlapEnd);
+                    if (!overlapText.isEmpty()) {
+                        lineComponent.append(Text.literal(overlapText).setStyle(comp.style));
+                    }
+                }
+            }
+            
+            lines.add(lineComponent);
+            globalPos = lineEnd;
+            
+            // Skip whitespace between lines
+            while (globalPos < fullText.length() && Character.isWhitespace(fullText.charAt(globalPos))) {
+                globalPos++;
+            }
+        }
+        
+        return lines;
+    }
+    
+    private void collectTextComponents(Text text, List<TextComponent> components) {
+        collectTextComponentsFlat(text, components);
+    }
+    
+    private void collectTextComponentsFlat(Text text, List<TextComponent> components) {
+        // Get the string content for just this Text node
+        String textString = text.getString();
+        String siblingsString = "";
+        
+        for (Text sibling : text.getSiblings()) {
+            siblingsString += sibling.getString();
+        }
+        
+        // The direct content is the difference
+        String directContent;
+        if (siblingsString.isEmpty()) {
+            directContent = textString;
+        } else {
+            directContent = textString.substring(0, textString.length() - siblingsString.length());
+        }
+        
+        if (!directContent.isEmpty()) {
+            int start = getCurrentPosition(components);
+            components.add(new TextComponent(directContent, start, start + directContent.length(), text.getStyle()));
+        }
+        
+        // Process siblings
+        for (Text sibling : text.getSiblings()) {
+            collectTextComponentsFlat(sibling, components);
+        }
+    }
+    
+    private int getCurrentPosition(List<TextComponent> components) {
+        return components.stream().mapToInt(c -> c.content.length()).sum();
+    }
+    
+    private List<String> splitIntoLines(String text, int maxWidth) {
+        List<String> lines = new ArrayList<>();
+        String remaining = text;
+        
+        while (remaining.length() > maxWidth) {
+            int breakPoint = maxWidth;
+            int lastSpace = remaining.lastIndexOf(' ', maxWidth - 1);
+            if (lastSpace > maxWidth / 2) {
+                breakPoint = lastSpace;
+                // Don't include the space in the line
+                lines.add(remaining.substring(0, breakPoint));
+                remaining = remaining.substring(breakPoint + 1); // Skip the space
+            } else {
+                // No good break point found, break at maxWidth
+                lines.add(remaining.substring(0, breakPoint));
+                remaining = remaining.substring(breakPoint);
+            }
+        }
+        
+        if (!remaining.isEmpty()) {
+            lines.add(remaining);
+        }
+        
+        return lines;
+    }
+    
+    private static class TextComponent {
+        final String content;
+        final int start;
+        final int end;
+        final Style style;
+        
+        TextComponent(String content, int start, int end, Style style) {
+            this.content = content;
+            this.start = start;
+            this.end = end;
+            this.style = style;
         }
     }
 
@@ -96,7 +302,7 @@ public class HelpCommand extends AbstractClientCommand {
             MutableText commandName = Text.literal("/tbgm " + command.getName()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(Identifier.of("minecraft", "default")));
             MutableText separator = Text.literal(" - ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default")));
             MutableText description = Text.literal(command.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default")));
-            sendMessage(commandName.append(separator).append(description), false);
+            sendWrappedMessageManual(commandName, separator, description, false);
         }
 
         sendWrappedMessage(Text.literal("Use '/tbgm help <command>' for more information about a specific command.").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
@@ -121,7 +327,7 @@ public class HelpCommand extends AbstractClientCommand {
             sendMessage(commandMessage, true);
 
             sendWrappedMessage(Text.literal("Description:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
-            sendWrappedMessage(Text.literal("  " + cmd.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
+            sendWrappedMessage(Text.literal(cmd.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
 
             sendWrappedMessage(Text.literal("Usage:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
             sendWrappedMessage(Text.literal(cmd.getUsage()).setStyle(Style.EMPTY.withColor(USAGE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);

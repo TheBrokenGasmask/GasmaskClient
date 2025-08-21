@@ -82,7 +82,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 
 					ClientPlayerEntity player = MinecraftClient.getInstance().player;
 					if (player == null) return;
-					player.sendMessage(Text.literal("§eToggled aspects to \"" + getFormattedMessage(response.toString()) + "§e\""), false);
+					Misc.sendTbgmMessage("Toggled aspects to \"" + getFormattedMessage(response.toString()) + "\"");
 				}
 
 				conn.disconnect();

@@ -1,5 +1,7 @@
 package dev.wiji.tbgm;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import dev.wiji.tbgm.commands.HelpCommand;
 import dev.wiji.tbgm.commands.LinkCommand;
 import dev.wiji.tbgm.commands.ToggleAspectsCommand;
@@ -7,10 +9,13 @@ import dev.wiji.tbgm.commands.UnlinkCommand;
 import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.controllers.Config;
 import dev.wiji.tbgm.controllers.PlayerManager;
+import dev.wiji.tbgm.objects.AbstractClientCommand;
 import dev.wiji.tbgm.objects.ClientCommand;
 import dev.wiji.tbgm.controllers.Updater;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
