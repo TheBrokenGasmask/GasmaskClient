@@ -7,6 +7,7 @@ import dev.wiji.tbgm.objects.AbstractClientCommand;
 import dev.wiji.tbgm.objects.ClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -37,15 +38,13 @@ public class HelpCommand extends AbstractClientCommand {
     private int executeHelp(CommandContext<FabricClientCommandSource> context) {
         FabricClientCommandSource source = context.getSource();
         
-        source.sendFeedback(Text.literal("=== tbgm Commands ===").formatted(Formatting.GOLD));
+        Misc.sendTbgmMessage("=== tbgm Commands ===");
         
         for (ClientCommand command : commands) {
-            source.sendFeedback(Text.literal("/tbgm " + command.getName() + " - " + command.getDescription())
-                .formatted(Formatting.YELLOW));
+            Misc.sendTbgmMessage("/tbgm " + command.getName() + " - " + command.getDescription());
         }
         
-        source.sendFeedback(Text.literal("Use '/tbgm help <command>' for more information about a specific command.")
-            .formatted(Formatting.GRAY));
+        Misc.sendTbgmMessage("Use '/tbgm help <command>' for more information about a specific command.");
         
         return 1;
     }
@@ -60,16 +59,13 @@ public class HelpCommand extends AbstractClientCommand {
         
         if (command.isPresent()) {
             ClientCommand cmd = command.get();
-            source.sendFeedback(Text.literal("=== Command: /tbgm " + cmd.getName() + " ===")
-                .formatted(Formatting.GOLD));
-            source.sendFeedback(Text.literal("Description: " + cmd.getDescription())
-                .formatted(Formatting.YELLOW));
-            source.sendFeedback(Text.literal("Usage:").formatted(Formatting.YELLOW));
+            Misc.sendTbgmMessage("=== Command: /tbgm " + cmd.getName() + " ===");
+            Misc.sendTbgmMessage("Description: " + cmd.getDescription());
+            Misc.sendTbgmMessage("Usage:");
             
             String[] usageLines = cmd.getUsage().split("\n");
-            for (String line : usageLines) {
-                source.sendFeedback(Text.literal("  " + line).formatted(Formatting.AQUA));
-            }
+            for (String line : usageLines) Misc.sendTbgmMessage("  " + line);
+
         } else {
             sendErrorMessage(source, "Command not found: " + commandName);
         }

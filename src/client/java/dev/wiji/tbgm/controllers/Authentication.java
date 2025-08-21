@@ -2,6 +2,7 @@ package dev.wiji.tbgm.controllers;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
 import dev.wiji.tbgm.GasmaskMain;
+import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -40,7 +41,7 @@ public class Authentication {
 				.thenCompose(tok -> connectWebSocketDebounced())
 				.exceptionally(ex -> {
 					var mc = MinecraftClient.getInstance();
-					if (mc.player != null) mc.player.sendMessage(Text.literal("§cGasmask Authentication/Socket error: " + ex.getMessage()), false);
+					if (mc.player != null) Misc.sendTbgmErrorMessage("Gasmask Authentication/Socket error: " + ex.getMessage());
 					return null;
 				});
 
@@ -81,7 +82,7 @@ public class Authentication {
 
 			MinecraftClient mc = MinecraftClient.getInstance();
 			if(mc.player != null) {
-				mc.player.sendMessage(Text.literal("§cFailed to get token from server. Please try entering a valid URL."), false);
+				Misc.sendTbgmErrorMessage("Failed to get token from server. Please try entering a valid URL.");
 			}
 			return null;
 		}
@@ -160,13 +161,13 @@ public class Authentication {
 		} catch(AuthenticationException e) {
 			MinecraftClient mc = MinecraftClient.getInstance();
 			if(mc.player != null) {
-				mc.player.sendMessage(Text.literal("§cFailed to authenticate with server. Please try entering a valid URL."), false);
+				Misc.sendTbgmErrorMessage("Failed to authenticate with server. Please try entering a valid URL.");
 			}
 			throw new CompletionException(e);
 		}
 
 		MinecraftClient mc = MinecraftClient.getInstance();
-		if(mc.player != null) mc.player.sendMessage(Text.literal("§aSuccessfully authenticated with server."), false);
+		if(mc.player != null) Misc.sendTbgmSuccessMessage("Successfully authenticated with server.");
 
 		token = newToken;
 		TOKEN_VALIDATED.set(true);
@@ -219,7 +220,7 @@ public class Authentication {
 				.thenCompose(tok -> connectWebSocketDebounced())
 				.exceptionally(ex -> {
 					var mc = MinecraftClient.getInstance();
-					if (mc.player != null) mc.player.sendMessage(Text.literal("§cGasmask Authentication/Socket error: " + ex.getMessage()), false);
+					if (mc.player != null) Misc.sendTbgmErrorMessage("Gasmask Authentication/Socket error: " + ex.getMessage());
 					return null;
 				});
 	}
@@ -367,13 +368,13 @@ public class Authentication {
 								WS_CONNECT_FUTURE.compareAndSet(cf, null);
 								var mc = MinecraftClient.getInstance();
 								if (mc.player != null) {
-									mc.player.sendMessage(Text.literal("§cFailed to connect websocket."), false);
+									Misc.sendTbgmErrorMessage("Failed to connect websocket.");
 								}
 								cf.completeExceptionally(ex);
 							} else {
 								var mc = MinecraftClient.getInstance();
 								if (mc.player != null) {
-									mc.player.sendMessage(Text.literal("§aWebsocket connected."), false);
+									Misc.sendTbgmSuccessMessage("Websocket connected.");
 								}
 								cf.complete(null);
 							}
@@ -411,7 +412,7 @@ public class Authentication {
 				.exceptionally(ex -> {
 					var mc = MinecraftClient.getInstance();
 					if (mc.player != null) {
-						mc.player.sendMessage(Text.literal("§cForced reauthentication failed: " + ex.getMessage()), false);
+						Misc.sendTbgmErrorMessage("Forced reauthentication failed: " + ex.getMessage());
 					}
 					return null;
 				});

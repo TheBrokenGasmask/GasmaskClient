@@ -10,6 +10,7 @@ import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -38,7 +39,7 @@ public class LinkCommand extends AbstractClientCommand {
 	}
 
 	public int executeLink(CommandContext<FabricClientCommandSource> source) {
-		source.getSource().sendFeedback(Text.literal("Usage: " + usage).formatted(Formatting.RED));
+		sendErrorMessage(source.getSource(), "Usage: " + usage);
 		return 0;
 	}
 
@@ -87,7 +88,7 @@ public class LinkCommand extends AbstractClientCommand {
 
 					sendErrorMessage(source, "Failed to link discord account: " + errorMessage);
 				} else {
-					source.sendFeedback(Text.literal("Successfully linked discord account").formatted(Formatting.GREEN));
+					sendSuccessMessage(source, "Successfully linked discord account");
 				}
 
 				conn.disconnect();

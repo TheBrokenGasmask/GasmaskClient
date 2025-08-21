@@ -7,6 +7,7 @@ import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
@@ -70,7 +71,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 
 					ClientPlayerEntity player = MinecraftClient.getInstance().player;
 					if (player == null) return;
-					player.sendMessage(Text.literal("§cFailed to toggle aspects: " + response), false);
+					Misc.sendTbgmErrorMessage("Failed to toggle aspects: " + response);
 				} else {
 					BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 					String inputLine;
@@ -95,8 +96,8 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 	}
 
 	public String getFormattedMessage(String message) {
-		if(message.contains("1")) return "§aNeeds aspects";
-		else if(message.contains("0")) return "§cDoes not need aspects";
+		if(message.contains("1")) return "Needs aspects";
+		else if(message.contains("0")) return "Does not need aspects";
 		else return "Unknown response";
 	}
 }

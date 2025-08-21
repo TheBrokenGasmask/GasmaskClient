@@ -111,11 +111,11 @@ public class RaidReport {
 
 				ClientPlayerEntity player = MinecraftClient.getInstance().player;
 				if (player == null) return;
-				player.sendMessage(Text.literal("§cFailed to report raid: " + response), false);
+				Misc.sendTbgmErrorMessage("Failed to report raid: " + response);
 			} else {
 				ClientPlayerEntity player = MinecraftClient.getInstance().player;
 				if (player == null) return;
-				player.sendMessage(Text.literal("§aSuccessfully reported raid!"), false);
+				Misc.sendTbgmSuccessMessage("Successfully reported raid!");
 			}
 
 			conn.disconnect();

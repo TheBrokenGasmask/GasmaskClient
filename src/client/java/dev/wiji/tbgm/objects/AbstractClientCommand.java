@@ -1,5 +1,6 @@
 package dev.wiji.tbgm.objects;
 
+import dev.wiji.tbgm.misc.Misc;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -32,14 +33,14 @@ public abstract class AbstractClientCommand implements ClientCommand {
     }
 
     protected void sendSuccessMessage(FabricClientCommandSource source, String message) {
-        source.sendFeedback(Text.literal(message).formatted(Formatting.GREEN));
+        Misc.sendTbgmSuccessMessage(message);
     }
 
     protected void sendErrorMessage(FabricClientCommandSource source, String message) {
-        source.sendError(Text.literal(message).formatted(Formatting.RED));
+        Misc.sendTbgmErrorMessage(message);
     }
 
     protected void sendInfoMessage(FabricClientCommandSource source, String message) {
-        source.sendFeedback(Text.literal(message).formatted(Formatting.AQUA));
+        Misc.sendTbgmMessage(message);
     }
 }

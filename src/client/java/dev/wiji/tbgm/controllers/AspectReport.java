@@ -81,7 +81,7 @@ public class AspectReport {
 
 				ClientPlayerEntity player = MinecraftClient.getInstance().player;
 				if (player == null) return;
-				player.sendMessage(Text.literal("§cFailed to report Aspect: " + response), false);
+				Misc.sendTbgmErrorMessage("Failed to report Aspect: " + response);
 			}
 
 			conn.disconnect();

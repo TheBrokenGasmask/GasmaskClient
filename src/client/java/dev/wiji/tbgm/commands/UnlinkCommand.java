@@ -9,6 +9,7 @@ import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -76,7 +77,7 @@ public class UnlinkCommand extends AbstractClientCommand {
 
 					sendErrorMessage(source, "Failed to unlink discord account: " + errorMessage);
 				} else {
-					source.sendFeedback(Text.literal("Successfully unlinked discord account").formatted(Formatting.GREEN));
+					sendSuccessMessage(source, "Successfully unlinked discord account");
 				}
 
 				conn.disconnect();
