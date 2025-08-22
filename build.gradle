@@ -3,6 +3,7 @@ plugins {
 	id 'maven-publish'
 }
 
+
 version = project.mod_version
 group = project.maven_group
 
@@ -89,3 +90,45 @@ publishing {
 		// retrieving dependencies.
 	}
 }
+
+// Custom task to generate BuildConstants.java
+task generateBuildConstants {
+    doLast {
+        def buildConstantsDir = file("${buildDir}/generated/sources/buildConstants/java/main")
+        buildConstantsDir.mkdirs()
+
+        def buildConstantsFile = new File(buildConstantsDir, "BuildConstants.java")
+
+        def versionPropsFile = file('version.properties')
+        def versionProps = new Properties()
+
+        if (versionPropsFile.exists()) {
+            versionProps.load(new FileInputStream(versionPropsFile))
+        }
+
+        def apiUrl = findProperty('apiUrl') ?: versionProps['API_URL']
+        def repoUrl = findProperty('repoUrl') ?: versionProps['REPO_URL']
+
+        if (apiUrl == null) {
+            throw new GradleException("API_URL is not defined in version.properties or as a command line argument.")
+        }
+        if (repoUrl == null) {
+            throw new GradleException("REPO_URL is not defined in version.properties or as a command line argument.")
+        }
+
+        buildConstantsFile.withWriter { writer ->
+            writer.println "package dev.wiji.tbgm;"
+            writer.println ""
+            writer.println "public final class BuildConstants {"
+            writer.println "    public static final String API_URL = \"${apiUrl}\";"
+            writer.println "    public static final String REPO_URL = \"${repoUrl}\";"
+            writer.println "}"
+        }
+    }
+}
+
+// Add the generated source directory to the main source set
+sourceSets.main.java.srcDirs += file("${buildDir}/generated/sources/buildConstants/java/main")
+
+// Ensure generateBuildConstants runs before compilation
+tasks.compileJava.dependsOn generateBuildConstants
