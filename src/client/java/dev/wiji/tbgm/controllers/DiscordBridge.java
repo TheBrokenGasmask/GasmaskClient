@@ -59,14 +59,14 @@ public class DiscordBridge {
     }
 
     private static String getUsername(Text text) {
-        final String COLOR = "dark_aqua";
+        final String color = "dark_aqua";
         final String[] username = {null};
 
         text.visit((style, content) -> {
             if (style.getColor() != null && !content.isEmpty()) {
                 String colorName = style.getColor().getName();
 
-                if (COLOR.equalsIgnoreCase(colorName)) {
+                if (color.equalsIgnoreCase(colorName)) {
 
                     String extractedName = null;
 

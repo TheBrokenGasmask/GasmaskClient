@@ -5,8 +5,11 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+import java.text.Normalizer;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +27,21 @@ public class GuildChatModifier {
     }
 
     public static Text modifyGuildMessage(Text originalMessage) {
-        if (originalMessage.getSiblings().size() < 3) return originalMessage;
+        int siblingCount = originalMessage.getSiblings().size();
+
+        if (siblingCount == 3) {
+            Text prefixSibling = originalMessage.getSiblings().getFirst();
+            boolean isFlagPole = prefixSibling.getString().contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE);
+            boolean isAqua = Objects.requireNonNull(prefixSibling.getStyle().getColor()).getRgb() == Formatting.AQUA.getColorValue();
+
+            System.out.println("GuildChatModifier: isFlagPole = " + isFlagPole);
+            System.out.println("GuildChatModifier: isAqua = " + isAqua);
+            if (!isFlagPole || !isAqua) return originalMessage;
+            Text modifiedContent = modifyTextColor(originalMessage.getSiblings().get(2));
+            return Text.empty()
+                    .append(prefixSibling)
+                    .append(modifiedContent);
+        } else if (siblingCount < 3) return originalMessage;
 
         String username = getUsername(originalMessage);
         if (username == null) return originalMessage;
