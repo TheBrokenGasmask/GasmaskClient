@@ -32,9 +32,7 @@ public class GuildChatModifier {
         if (siblingCount == 3) {
             Text prefixSibling = originalMessage.getSiblings().getFirst();
             boolean isFlagPole = prefixSibling.getString().contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE);
-
-            if (prefixSibling.getStyle().getColor() == null) return originalMessage;
-            boolean isAqua = prefixSibling.getStyle().getColor().getRgb() == Formatting.AQUA.getColorValue();
+            boolean isAqua = Objects.requireNonNull(prefixSibling.getStyle().getColor()).getRgb() == Formatting.AQUA.getColorValue();
 
             System.out.println("GuildChatModifier: isFlagPole = " + isFlagPole);
             System.out.println("GuildChatModifier: isAqua = " + isAqua);
