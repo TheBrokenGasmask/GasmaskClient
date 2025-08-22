@@ -1,10 +1,10 @@
 package dev.wiji.tbgm.controllers;
 
 import com.mojang.authlib.exceptions.AuthenticationException;
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -52,7 +52,7 @@ public class Authentication {
 	public static String getToken(String uuid) {
 		String token = "";
 		try {
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/authenticate?uuid=" + uuid).toURL();
@@ -96,7 +96,7 @@ public class Authentication {
 
 		try {
 			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/is-authenticated?uuid=" + uuid).toURL();
@@ -246,7 +246,7 @@ public class Authentication {
 		UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
 
 		try {
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/is-authenticated?uuid=" + uuid).toURL();
@@ -280,7 +280,7 @@ public class Authentication {
 	public static String getWebSocketToken() {
 		try {
 			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/auth/websocket-token?uuid=" + uuid).toURL();
@@ -323,7 +323,7 @@ public class Authentication {
 
 		try {
 			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			URL url = URI.create(baseUrl + "/api/auth/refresh-token?uuid=" + uuid).toURL();

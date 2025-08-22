@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.badge.BadgeManager;
 import dev.wiji.tbgm.badge.CustomBadge;
@@ -113,7 +114,7 @@ public class PlayerManager {
         new Thread(() -> {
             try {
                 StringBuilder urlBuilder = new StringBuilder();
-                String baseUrl = GasmaskMain.getApiUrl();
+                String baseUrl = GasmaskClient.getApiUrl();
                 if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
                 urlBuilder.append(baseUrl).append("/api/players");

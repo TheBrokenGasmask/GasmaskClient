@@ -1,7 +1,5 @@
 package dev.wiji.tbgm;
 
-import dev.wiji.tbgm.BuildConstants;
-
 import dev.wiji.tbgm.commands.HelpCommand;
 import dev.wiji.tbgm.commands.LinkCommand;
 import dev.wiji.tbgm.commands.ToggleAspectsCommand;
@@ -20,13 +18,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GasmaskMain implements ClientModInitializer {
+public class GasmaskClient implements ClientModInitializer {
 	public static Config.ConfigData configData;
 	private static final List<ClientCommand> commands = new ArrayList<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger("Gasmask");
 
-		private static final String API_URL = BuildConstants.API_URL;
-	private static final String REPO_URL = BuildConstants.REPO_URL;
+		private static final String API_URL = dev.wiji.tbgm.BuildConstants.API_URL;
+	private static final String REPO_URL = dev.wiji.tbgm.BuildConstants.REPO_URL;
 	private static final String MOD_ID = "gasmask";
 
 	@Override

@@ -4,14 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import dev.wiji.tbgm.misc.Misc;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,7 +41,7 @@ public class UnlinkCommand extends AbstractClientCommand {
 	private void sendUnlinkRequest(FabricClientCommandSource source, String code) {
 		new Thread(() -> {
 			StringBuilder urlBuilder = new StringBuilder();
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			urlBuilder.append(baseUrl).append("/api/unlink-minecraft?");

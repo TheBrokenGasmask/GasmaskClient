@@ -2,6 +2,7 @@ package dev.wiji.tbgm.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
@@ -10,7 +11,6 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.text.Text;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -41,7 +41,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 			UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
 
 			StringBuilder urlBuilder = new StringBuilder();
-			String baseUrl = GasmaskMain.getApiUrl();
+			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 			urlBuilder.append(baseUrl).append("/api/toggle-aspects?");

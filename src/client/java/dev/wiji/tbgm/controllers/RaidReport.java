@@ -1,5 +1,6 @@
 package dev.wiji.tbgm.controllers;
 
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.enums.RaidType;
 import dev.wiji.tbgm.misc.Misc;
@@ -82,7 +83,7 @@ public class RaidReport {
 		for(int i = 0; i < raid.players.length; i++) parameters.put("player" + (i + 1), raid.players[i]);
 
 		StringBuilder urlBuilder = new StringBuilder();
-		String baseUrl = GasmaskMain.getApiUrl();
+		String baseUrl = GasmaskClient.getApiUrl();
 		if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 		urlBuilder.append(baseUrl).append("/api/report-raid?");

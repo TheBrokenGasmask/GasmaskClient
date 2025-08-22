@@ -3,15 +3,13 @@ package dev.wiji.tbgm.controllers;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
-import dev.wiji.tbgm.enums.Rank;
-import net.minecraft.client.MinecraftClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
-import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -123,7 +121,7 @@ public class WebSocket {
     }
 
     private CompletableFuture<Void> attemptWebSocketConnection(CompletableFuture<Void> cf, String authToken) {
-        String httpUrl = GasmaskMain.getApiUrl();
+        String httpUrl = GasmaskClient.getApiUrl();
         String wsUrl = convertHttpToWebSocketUrl(httpUrl);
 
         if (wsUrl == null) {

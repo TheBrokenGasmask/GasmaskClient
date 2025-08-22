@@ -17,10 +17,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"dev.wiji.tbgm.GasmaskClient"
+			"dev.wiji.tbgm.GasmaskMain"
 		],
 		"client": [
-			"dev.wiji.tbgm.GasmaskMain"
+			"dev.wiji.tbgm.GasmaskClient"
 		],
 		"modmenu": [
 			"dev.wiji.tbgm.controllers.ModMenuIntegration"

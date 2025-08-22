@@ -21,14 +21,14 @@ public class Updater {
     public static void checkForUpdates() {
         new Thread(() -> {
             try {
-                URL url = URI.create(GasmaskMain.getRepoUrl()).toURL();
+                URL url = URI.create(GasmaskClient.getRepoUrl()).toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.connect();
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode != 200) {
-                    GasmaskClient.LOGGER.error("Failed to check for updates. Response code: " + responseCode);
+                    GasmaskMain.LOGGER.error("Failed to check for updates. Response code: " + responseCode);
                     return;
                 }
 
@@ -42,14 +42,14 @@ public class Updater {
                 Gson gson = new Gson();
                 JsonObject release = gson.fromJson(inline.toString(), JsonObject.class);
                 String latestVersion = release.get("tag_name").getAsString();
-                String currentVersion = GasmaskClient.MOD_VERSION;
+                String currentVersion = GasmaskMain.MOD_VERSION;
 
                 if (latestVersion.equals(currentVersion)) {
-                    GasmaskClient.LOGGER.info("Mod is up to date.");
+                    GasmaskMain.LOGGER.info("Mod is up to date.");
                     return;
                 }
 
-                GasmaskClient.LOGGER.info("New version available: " + latestVersion);
+                GasmaskMain.LOGGER.info("New version available: " + latestVersion);
 
                 String downloadUrl = null;
                 String sha256 = null;
@@ -64,7 +64,7 @@ public class Updater {
                 }
 
                 if (downloadUrl == null) {
-                    GasmaskClient.LOGGER.error("Could not find download URL for the latest release.");
+                    GasmaskMain.LOGGER.error("Could not find download URL for the latest release.");
                     return;
                 }
 
@@ -73,7 +73,7 @@ public class Updater {
                 downloadConnection.setRequestMethod("GET");
                 downloadConnection.connect();
 
-                Path tempFile = Files.createTempFile(GasmaskMain.getModId(), ".jar");
+                Path tempFile = Files.createTempFile(GasmaskClient.getModId(), ".jar");
                 try (InputStream in = downloadConnection.getInputStream();
                      FileOutputStream out = new FileOutputStream(tempFile.toFile())) {
                     byte[] buffer = new byte[1024];
@@ -87,24 +87,24 @@ public class Updater {
                 String checksum = getFileChecksum(sha256Digest, tempFile.toFile());
 
                 if (!checksum.equals(sha256)) {
-                    GasmaskClient.LOGGER.error("SHA256 checksum does not match. Aborting update.");
+                    GasmaskMain.LOGGER.error("SHA256 checksum does not match. Aborting update.");
                     return;
                 }
 
                 Path modsDir = new File(".").toPath().resolve("mods");
-                Path targetFile = modsDir.resolve(GasmaskMain.getModId() + "-" + latestVersion + ".jar");
+                Path targetFile = modsDir.resolve(GasmaskClient.getModId() + "-" + latestVersion + ".jar");
 
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     try {
                         Files.move(tempFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
-                        GasmaskClient.LOGGER.info("Mod updated successfully. Please restart the game.");
+                        GasmaskMain.LOGGER.info("Mod updated successfully. Please restart the game.");
                     } catch (Exception e) {
-                        GasmaskClient.LOGGER.error("Failed to move updated mod file.", e);
+                        GasmaskMain.LOGGER.error("Failed to move updated mod file.", e);
                     }
                 }));
 
             } catch (Exception e) {
-                GasmaskClient.LOGGER.error("Failed to check for updates.", e);
+                GasmaskMain.LOGGER.error("Failed to check for updates.", e);
             }
         }).start();
     }

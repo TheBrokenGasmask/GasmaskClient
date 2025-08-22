@@ -1,5 +1,6 @@
 package dev.wiji.tbgm.controllers;
 
+import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.misc.Misc;
 import dev.wiji.tbgm.objects.Aspect;
@@ -57,7 +58,7 @@ public class AspectReport {
 		parameters.put("token", Authentication.token);
 
 		StringBuilder urlBuilder = new StringBuilder();
-		String baseUrl = GasmaskMain.getApiUrl();
+		String baseUrl = GasmaskClient.getApiUrl();
 		if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
 		urlBuilder.append(baseUrl).append("/api/report-aspect?");
