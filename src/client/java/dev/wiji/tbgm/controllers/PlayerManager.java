@@ -25,8 +25,8 @@ public class PlayerManager {
     private static final Map<UUID, PlayerInfo> playerInfoMap = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private static boolean autoFetchEnabled = false;
-    private static final int FETCH_INTERVAL_MINUTES = 1;
-    
+    private static final int FETCH_INTERVAL_SECONDS = 60;
+
     /**
      * Player information structure for local storage
      */
@@ -73,11 +73,8 @@ public class PlayerManager {
         }
         
         autoFetchEnabled = true;
-        System.out.println("Starting automatic player data fetching every " + FETCH_INTERVAL_MINUTES + " minutes");
-        
-        // Initial fetch
-        fetchPlayerData();
-        
+        System.out.println("Starting automatic player data fetching every " + FETCH_INTERVAL_SECONDS + " minutes");
+
         // Schedule periodic fetching
         scheduler.scheduleAtFixedRate(() -> {
             try {
@@ -85,7 +82,7 @@ public class PlayerManager {
             } catch (Exception e) {
                 System.err.println("Error during scheduled player data fetch: " + e.getMessage());
             }
-        }, FETCH_INTERVAL_MINUTES, FETCH_INTERVAL_MINUTES, TimeUnit.MINUTES);
+        }, 5, FETCH_INTERVAL_SECONDS, TimeUnit.SECONDS);
     }
     
     /**
