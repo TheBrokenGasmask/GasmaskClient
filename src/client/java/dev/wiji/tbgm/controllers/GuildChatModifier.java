@@ -32,10 +32,10 @@ public class GuildChatModifier {
         if (siblingCount == 3) {
             Text prefixSibling = originalMessage.getSiblings().getFirst();
             boolean isFlagPole = prefixSibling.getString().contains(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE);
-            boolean isAqua = Objects.requireNonNull(prefixSibling.getStyle().getColor()).getRgb() == Formatting.AQUA.getColorValue();
 
-            System.out.println("GuildChatModifier: isFlagPole = " + isFlagPole);
-            System.out.println("GuildChatModifier: isAqua = " + isAqua);
+            if (prefixSibling.getStyle().getColor() == null) return originalMessage;
+            boolean isAqua = prefixSibling.getStyle().getColor().getRgb() == Formatting.AQUA.getColorValue();
+
             if (!isFlagPole || !isAqua) return originalMessage;
             Text modifiedContent = modifyTextColor(originalMessage.getSiblings().get(2));
             return Text.empty()
@@ -81,9 +81,11 @@ public class GuildChatModifier {
                             String hoverString = hoverText.getString();
                             Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
                             Matcher hoverMatcher = hoverPattern.matcher(hoverString);
-                            if (hoverMatcher.find()) {
-                                extractedName = hoverMatcher.group(2);
-                            }
+                            if (hoverMatcher.find()) extractedName = hoverMatcher.group(2);
+
+                            Pattern nicknamePattern = Pattern.compile("^(.*?)'?s nickname is (.*)$");
+                            Matcher nicknameMatcher = nicknamePattern.matcher(hoverString);
+                            if (nicknameMatcher.find()) extractedName = nicknameMatcher.group(1);
                         }
                     }
 
