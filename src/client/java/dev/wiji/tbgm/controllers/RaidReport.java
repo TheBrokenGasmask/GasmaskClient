@@ -1,7 +1,6 @@
 package dev.wiji.tbgm.controllers;
 
 import dev.wiji.tbgm.GasmaskClient;
-import dev.wiji.tbgm.GasmaskMain;
 import dev.wiji.tbgm.enums.RaidType;
 import dev.wiji.tbgm.misc.Misc;
 import dev.wiji.tbgm.objects.Raid;
@@ -9,20 +8,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RaidReport {
-	private static long lastCallTime = 0;
 
 	public static void parseChatMessage(Text message) {
 		String unformattedMessage = Misc.getUnformattedString(message.getString());
@@ -64,64 +56,15 @@ public class RaidReport {
 
 		Raid raid = new Raid(raidType, new String[]{user1, user2, user3, user4}, reporterID, Integer.parseInt(sr), Misc.convertToInt(xp));
 
-		new Thread(() -> reportRaid(raid)).start();
+		Authentication.getWebSocketManager().sendRaidReport(raid);
 	}
 
-	public static void reportRaid(Raid raid) {
-		long currentTime = System.currentTimeMillis();
-		if (currentTime - lastCallTime < 100) return;
-
-		lastCallTime = currentTime;
-
-		Map<String, String> parameters = new HashMap<>();
-		parameters.put("raid", String.valueOf(raid.raidType.id));
-		parameters.put("reporter", raid.reporter.toString());
-		parameters.put("token", Authentication.token);
-		parameters.put("seasonRating", String.valueOf(raid.seasonRating));
-		parameters.put("guildXP", String.valueOf(raid.guildXP));
-
-		for(int i = 0; i < raid.players.length; i++) parameters.put("player" + (i + 1), raid.players[i]);
-
-		StringBuilder urlBuilder = new StringBuilder();
-		String baseUrl = GasmaskClient.getApiUrl();
-		if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-
-		urlBuilder.append(baseUrl).append("/api/report-raid?");
-		parameters.forEach((key, value) -> urlBuilder.append(key).append("=").append(value).append("&"));
-
-		try {
-			URL url = URI.create(urlBuilder.toString()).toURL();
-			System.out.println("Sending raid report to: " + urlBuilder);
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("GET");
-
-			int responseCode = conn.getResponseCode();
-			String responseMessage = conn.getResponseMessage();
-
-			System.out.println("Sending raid response code: " + responseCode);
-			System.out.println("Sending raid response message: " + responseMessage);
-
-			if (responseCode < 200 || responseCode > 299) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-				String inputLine;
-				StringBuilder response = new StringBuilder();
-
-				while ((inputLine = in.readLine()) != null) response.append(inputLine);
-				in.close();
-
-				ClientPlayerEntity player = MinecraftClient.getInstance().player;
-				if (player == null) return;
-				Misc.sendTbgmErrorMessage("Failed to report raid: " + response);
-			} else {
-				ClientPlayerEntity player = MinecraftClient.getInstance().player;
-				if (player == null) return;
-				Misc.sendTbgmSuccessMessage("Successfully reported raid!");
-			}
-
-			conn.disconnect();
-		} catch (Exception e) {
-			e.printStackTrace();
+	public static void handleRaidReportResponse(boolean success, String message, String error) {
+		if (success) {
+			Misc.sendTbgmSuccessMessage("Successfully reported raid!");
+		} else {
+			String errorMsg = error != null ? error : message;
+			Misc.sendTbgmErrorMessage("Failed to report raid: " + errorMsg);
 		}
 	}
 }

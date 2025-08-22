@@ -5,6 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.GasmaskMain;
+import dev.wiji.tbgm.enums.Rank;
+import dev.wiji.tbgm.objects.Raid;
+import net.minecraft.client.MinecraftClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -414,6 +417,21 @@ public class WebSocket {
         }
     }
 
+    public void sendRaidReport(Raid raid) {
+        Gson gson = new Gson();
+
+        RaidReportPacket raidPacket = new RaidReportPacket(raid);
+        String jsonMessage = gson.toJson(raidPacket);
+
+        java.net.http.WebSocket ws = this.webSocket;
+        if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
+            System.out.println("Sending raid report: " + jsonMessage);
+            ws.sendText(jsonMessage, true);
+        } else {
+            if (shouldReconnect.get()) handleConnectionLoss();
+        }
+    }
+
     public ScheduledExecutorService getScheduler() {
         return scheduler;
     }
@@ -434,6 +452,38 @@ public class WebSocket {
             public Data(String username, String message) {
                 this.username = username;
                 this.message = message;
+            }
+        }
+    }
+
+    public static class RaidReportPacket {
+        public String type;
+        public RaidData data;
+
+        public RaidReportPacket(Raid raid) {
+            this.type = "raid_report";
+            this.data = new RaidData(raid);
+        }
+
+        public static class RaidData {
+            public String raid;
+            public String player1;
+            public String player2;
+            public String player3;
+            public String player4;
+            public String reporter;
+            public int seasonRating;
+            public int guildXP;
+
+            public RaidData(Raid raid) {
+                this.raid = String.valueOf(raid.raidType.id);
+                this.player1 = raid.players[0];
+                this.player2 = raid.players[1];
+                this.player3 = raid.players[2];
+                this.player4 = raid.players[3];
+                this.reporter = raid.reporter.toString();
+                this.seasonRating = raid.seasonRating;
+                this.guildXP = raid.guildXP;
             }
         }
     }
