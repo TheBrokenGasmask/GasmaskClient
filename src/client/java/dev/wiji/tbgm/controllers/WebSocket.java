@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.wiji.tbgm.GasmaskClient;
-import dev.wiji.tbgm.GasmaskMain;
-import dev.wiji.tbgm.enums.Rank;
 import dev.wiji.tbgm.objects.Raid;
-import net.minecraft.client.MinecraftClient;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,10 +25,10 @@ public class WebSocket {
     private final AtomicBoolean reconnectScheduled = new AtomicBoolean(false);
     private final AtomicBoolean authenticationInProgress = new AtomicBoolean(false);
 
-    private static final int MAX_RECONNECT_ATTEMPTS = 5;
-    private static final int RECONNECT_DELAY_MS = 5000;
-    private static final int HEARTBEAT_INTERVAL_MS = 30000;
-    private static final int HEARTBEAT_TIMEOUT_MS = 45000;
+    private static final int MAX_RECONNECT_ATTEMPTS = 3;
+    private static final int RECONNECT_DELAY_MS = 3000;
+    private static final int HEARTBEAT_INTERVAL_MS = 25000;
+    private static final int HEARTBEAT_TIMEOUT_MS = 35000;
 
     private volatile int reconnectAttempts = 0;
     private volatile long lastHeartbeatSent = 0;

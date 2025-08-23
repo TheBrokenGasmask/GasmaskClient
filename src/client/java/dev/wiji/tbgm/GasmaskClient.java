@@ -1,9 +1,6 @@
 package dev.wiji.tbgm;
 
-import dev.wiji.tbgm.commands.HelpCommand;
-import dev.wiji.tbgm.commands.LinkCommand;
-import dev.wiji.tbgm.commands.ToggleAspectsCommand;
-import dev.wiji.tbgm.commands.UnlinkCommand;
+import dev.wiji.tbgm.commands.*;
 import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.controllers.Config;
 import dev.wiji.tbgm.controllers.PlayerManager;
@@ -53,6 +50,7 @@ public class GasmaskClient implements ClientModInitializer {
 		commands.add(new ToggleAspectsCommand());
 		commands.add(new LinkCommand());
 		commands.add(new UnlinkCommand());
+		commands.add(new ReconnectCommand());
 		commands.add(new HelpCommand(commands));
 	}
 

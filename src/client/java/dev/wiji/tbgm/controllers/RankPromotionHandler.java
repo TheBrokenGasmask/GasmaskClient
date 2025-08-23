@@ -22,7 +22,7 @@ public class RankPromotionHandler {
         String plainText = message.getString();
         Matcher matcher = RANK_PROMOTION_PATTERN.matcher(plainText);
 
-        System.out.println("Processing chat message for rank promotion: " + plainText);
+        //System.out.println("Processing chat message for rank promotion: " + plainText);
 
         if (matcher.find()) {
             System.out.println("Rank promotion detected in chat: " + plainText);
