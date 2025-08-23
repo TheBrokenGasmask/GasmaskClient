@@ -80,6 +80,15 @@
       "file": "tbgm:font/council_logo.png",
       "height": 8,
       "type": "bitmap"
+    },
+    {
+      "ascent": 7,
+      "chars": [
+        "\uE109"
+      ],
+      "file": "tbgm:font/owner_logo.png",
+      "height": 8,
+      "type": "bitmap"
     }
   ]
 }

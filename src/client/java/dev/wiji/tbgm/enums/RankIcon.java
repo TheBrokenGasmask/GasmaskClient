@@ -9,7 +9,8 @@ public enum RankIcon {
         STRATEGIST("\uE105", "Strategist"),
         ADVISOR("\uE106", "Advisor"),
         CHIEF("\uE107", "Chief"),
-        COUNCIL("\uE108", "Council");
+        COUNCIL("\uE108", "Council"),
+        OWNER("\uE109", "Owner");
         
         private final String character;
         private final String displayName;
