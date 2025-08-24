@@ -25,9 +25,9 @@ public class WebSocket {
     private final AtomicBoolean reconnectScheduled = new AtomicBoolean(false);
     private final AtomicBoolean authenticationInProgress = new AtomicBoolean(false);
 
-    private static final int MAX_RECONNECT_ATTEMPTS = 4;
-    private static final int RECONNECT_DELAY_MS = 5000;
-    private static final int HEARTBEAT_INTERVAL_MS = 30000;
+    private static final int MAX_RECONNECT_ATTEMPTS = 20;
+    private static final int RECONNECT_DELAY_MS = 2500;
+    private static final int HEARTBEAT_INTERVAL_MS = 25000;
     private static final int HEARTBEAT_TIMEOUT_MS = 40000;
 
     private volatile int reconnectAttempts = 0;
@@ -110,10 +110,10 @@ public class WebSocket {
 
             return currentToken;
         }, scheduler).thenCompose(token -> CompletableFuture.supplyAsync(() -> {
-			String wsToken = Authentication.getWebSocketToken();
-			if (wsToken == null || wsToken.isEmpty()) throw new IllegalStateException("Failed to get websocket token");
-			return wsToken;
-		}, scheduler)).thenCompose(wsToken -> attemptWebSocketConnection(cf, wsToken)).exceptionally(ex -> {
+            String wsToken = Authentication.getWebSocketToken();
+            if (wsToken == null || wsToken.isEmpty()) throw new IllegalStateException("Failed to get websocket token");
+            return wsToken;
+        }, scheduler)).thenCompose(wsToken -> attemptWebSocketConnection(cf, wsToken)).exceptionally(ex -> {
             connectFutureRef.set(null);
             cf.completeExceptionally(ex);
             return null;
@@ -297,7 +297,9 @@ public class WebSocket {
         @Override
         public void onOpen(java.net.http.WebSocket webSocket) {
             isConnected.set(true);
+            System.out.println("WebSocket connection established to " + getWebSocketUrl());
             lastHeartbeatReceived = System.currentTimeMillis();
+            reconnectAttempts = 0;
             Listener.super.onOpen(webSocket);
         }
 
@@ -331,6 +333,11 @@ public class WebSocket {
             connectFutureRef.set(null);
             stopHeartbeat();
 
+            if (statusCode == 1006) {
+                scheduleReconnect();
+                return null;
+            }
+
             boolean authError = (statusCode == 1008) || (reason != null && (
                     reason.contains("Invalid authentication") ||
                             reason.contains("Authentication failed") ||
@@ -341,8 +348,8 @@ public class WebSocket {
 
             boolean replaced = (reason != null && reason.contains("New connection established"));
 
-            if (shouldReconnect.get() && statusCode != java.net.http.WebSocket.NORMAL_CLOSURE && !replaced) {
-                if (authError) {
+            if (shouldReconnect.get() && !replaced) {
+                if (authError || statusCode == 1008) {
                     Authentication.invalidateToken();
                     scheduleReconnectWithAuth();
                 } else {

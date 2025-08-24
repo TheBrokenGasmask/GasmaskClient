@@ -228,20 +228,12 @@ public class Authentication {
 	}
 
 	public static void checkForAuthentication() {
-		if (token != null && !token.isEmpty()) {
+		if (token != null && !token.isEmpty() && TOKEN_VALIDATED.get()) {
 			if (validateCurrentToken()) {
 				if (!webSocket.isConnected()) {
 					connectWebSocketDebounced();
-				} else {
-					return;
 				}
 				return;
-			} else {
-				if (!webSocket.isConnected()) {
-					invalidateToken();
-				} else {
-					return;
-				}
 			}
 		}
 
