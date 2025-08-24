@@ -75,6 +75,7 @@ public class Authentication {
 					response.append(inputLine);
 				}
 				token = response.toString();
+				System.out.println("Received token: " + token+ "for uuid: " + uuid);
 			}
 			conn.disconnect();
 		} catch (Exception e) {
@@ -110,6 +111,7 @@ public class Authentication {
 			conn.disconnect();
 
 			boolean isValid = (responseCode == 200);
+			System.out.println("Token validation result: " + isValid + " (HTTP " + responseCode + ")");
 			TOKEN_VALIDATED.set(isValid);
 
 			if (!isValid) {

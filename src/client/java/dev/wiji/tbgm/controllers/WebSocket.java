@@ -25,10 +25,10 @@ public class WebSocket {
     private final AtomicBoolean reconnectScheduled = new AtomicBoolean(false);
     private final AtomicBoolean authenticationInProgress = new AtomicBoolean(false);
 
-    private static final int MAX_RECONNECT_ATTEMPTS = 3;
-    private static final int RECONNECT_DELAY_MS = 3000;
-    private static final int HEARTBEAT_INTERVAL_MS = 25000;
-    private static final int HEARTBEAT_TIMEOUT_MS = 35000;
+    private static final int MAX_RECONNECT_ATTEMPTS = 4;
+    private static final int RECONNECT_DELAY_MS = 5000;
+    private static final int HEARTBEAT_INTERVAL_MS = 30000;
+    private static final int HEARTBEAT_TIMEOUT_MS = 40000;
 
     private volatile int reconnectAttempts = 0;
     private volatile long lastHeartbeatSent = 0;
@@ -195,7 +195,7 @@ public class WebSocket {
             JsonObject heartbeat = new JsonObject();
             heartbeat.addProperty("type", "heartbeat");
             heartbeat.addProperty("timestamp", lastHeartbeatSent);
-
+            //System.out.println("Sending heartbeat at " + lastHeartbeatSent);
             if (webSocket != null && !webSocket.isOutputClosed()) {
                 webSocket.sendText(heartbeat.toString(), true);
             }
@@ -209,7 +209,7 @@ public class WebSocket {
         if (lastHeartbeatSent > 0 && lastHeartbeatReceived > 0) {
             long timeSinceLastResponse = now - lastHeartbeatReceived;
             long timeSinceLastSent = now - lastHeartbeatSent;
-
+            //System.out.println("Heartbeat check: sent " + timeSinceLastSent + "ms ago, received " + timeSinceLastResponse + "ms ago");
             if (timeSinceLastSent < HEARTBEAT_TIMEOUT_MS && timeSinceLastResponse > HEARTBEAT_TIMEOUT_MS) {
                 handleConnectionLoss();
             }
@@ -227,10 +227,12 @@ public class WebSocket {
     private void scheduleReconnect() {
         if (!shouldReconnect.get()) return;
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+            System.out.println("Max reconnect attempts reached, will not reconnect");
             return;
         }
         if (!reconnectScheduled.compareAndSet(false, true)) return;
 
+        System.out.println("Scheduling reconnect attempt " + (reconnectAttempts + 1) + " in " + RECONNECT_DELAY_MS + "ms");
         reconnectAttempts++;
 
         scheduler.schedule(() -> {
