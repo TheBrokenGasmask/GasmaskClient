@@ -2,10 +2,19 @@ package dev.wiji.tbgm.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import dev.wiji.tbgm.enums.Rank;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import com.wynntils.core.components.Models;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -41,6 +50,16 @@ public class RankPromotionHandler {
             String targetUsername = data.get("targetUsername").getAsString().toLowerCase();
             int newRankInt = data.get("newRank").getAsInt();
             String requestId = data.get("requestId").getAsString();
+
+            if (!Models.Guild.getGuildName().isEmpty()){
+                Rank newRank = Rank.fromInt(newRankInt).orElse(Rank.RECRUIT);
+                String rankName = newRank.getRankPlainText();
+                if (isUserAlreadyPromoted(targetUsername, rankName, Models.Guild.getGuildName())) {
+
+                    sendRankPromotionSuccess(targetUsername, rankName );
+                    return;
+                }
+            }
 
             Rank.fromInt(newRankInt).ifPresent(newRank -> {
                 pendingRankPromotions.put(targetUsername, requestId);
@@ -79,6 +98,55 @@ public class RankPromotionHandler {
 
         System.out.println("Sending rank promotion response: " + jsonMessage);
         Authentication.getWebSocketManager().sendMessage(jsonMessage);
+    }
+
+    public static boolean isUserAlreadyPromoted(String username, String rank, String guild) {
+        String encodedGuildName = URLEncoder.encode(guild, StandardCharsets.UTF_8);
+        String wynnUrl = String.format("https://api.wynncraft.com/v3/guild/%s?identifier=username", encodedGuildName);
+        try {
+            URL url = URI.create(wynnUrl).toURL();
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode < 200){
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+                reader.close();
+                JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
+
+                if (jsonResponse.has("members")) {
+                    JsonObject members = jsonResponse.getAsJsonObject("members");
+
+                    for (String memberRank : members.keySet()) {
+                        if (memberRank.equalsIgnoreCase(rank)) {
+                            JsonObject rankMembers = members.getAsJsonObject(memberRank);
+
+                            for (String memberUsername : rankMembers.keySet()) {
+                                if (memberUsername.equalsIgnoreCase(username)) {
+                                    return true;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println("Wynncraft API Error: " + responseCode);
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     public static class RankPromotionResponsePacket {
