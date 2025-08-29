@@ -18,6 +18,7 @@ import java.security.MessageDigest;
 import java.util.Scanner;
 
 public class Updater {
+    public static Boolean IS_CLIENT_UPDATED = false;
     public static void checkForUpdates() {
         new Thread(() -> {
             try {
@@ -90,6 +91,7 @@ public class Updater {
                     GasmaskMain.LOGGER.error("SHA256 checksum does not match. Aborting update.");
                     return;
                 }
+                IS_CLIENT_UPDATED = true;
 
                 Path modsDir = new File(".").toPath().resolve("mods");
                 Path targetFile = modsDir.resolve(GasmaskClient.getModId() + "-" + latestVersion + ".jar");
@@ -123,5 +125,31 @@ public class Updater {
             sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
         }
         return sb.toString();
+    }
+
+    public static void cleanupOldVersions() {
+        try {
+            Path modsDir = new File(".").toPath().resolve("mods");
+            String currentVersion = GasmaskMain.MOD_VERSION;
+            String modIdPattern = GasmaskClient.getModId();
+
+            Files.list(modsDir)
+                    .filter(path -> {
+                        String fileName = path.getFileName().toString();
+                        return fileName.startsWith(modIdPattern + "-") &&
+                                fileName.endsWith(".jar") &&
+                                !fileName.equals(modIdPattern + "-" + currentVersion + ".jar");
+                    })
+                    .forEach(oldFile -> {
+                        try {
+                            Files.delete(oldFile);
+                            GasmaskMain.LOGGER.info("Cleaned up old version: " + oldFile.getFileName());
+                        } catch (Exception e) {
+                            GasmaskMain.LOGGER.warn("Failed to delete old version: " + oldFile.getFileName(), e);
+                        }
+                    });
+        } catch (Exception e) {
+            GasmaskMain.LOGGER.warn("Failed to cleanup old mod versions", e);
+        }
     }
 }

@@ -7,7 +7,7 @@ import dev.wiji.tbgm.controllers.PlayerManager;
 import dev.wiji.tbgm.objects.ClientCommand;
 import dev.wiji.tbgm.controllers.Updater;
 import dev.wiji.tbgm.misc.WynntilsConfig;
-//import dev.wiji.tbgm.raid.RaidTracker;
+import dev.wiji.tbgm.raid.RaidTracker;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -22,7 +22,7 @@ public class GasmaskClient implements ClientModInitializer {
 	private static final List<ClientCommand> commands = new ArrayList<>();
 	private static final Logger LOGGER = LoggerFactory.getLogger("Gasmask");
 
-		private static final String API_URL = dev.wiji.tbgm.BuildConstants.API_URL;
+	private static final String API_URL = dev.wiji.tbgm.BuildConstants.API_URL;
 	private static final String REPO_URL = dev.wiji.tbgm.BuildConstants.REPO_URL;
 	private static final String MOD_ID = "gasmask";
 
@@ -35,11 +35,11 @@ public class GasmaskClient implements ClientModInitializer {
 			Authentication.authInit();
 			Updater.checkForUpdates();
 		});
-
+		Updater.cleanupOldVersions();
 		registerCommands();
-		PlayerManager.startAutoFetch();
+
 		WynntilsConfig.modifyWynntilsConfig();
-		//RaidTracker.initialize();
+		RaidTracker.initialize();
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			for (ClientCommand command : commands) {
@@ -53,7 +53,8 @@ public class GasmaskClient implements ClientModInitializer {
 		commands.add(new LinkCommand());
 		commands.add(new UnlinkCommand());
 		commands.add(new ReconnectCommand());
-		//commands.add(new RaidStatusCommand());
+		commands.add(new ReadyCommand());
+		commands.add(new UnreadyCommand());
 		commands.add(new HelpCommand(commands));
 	}
 

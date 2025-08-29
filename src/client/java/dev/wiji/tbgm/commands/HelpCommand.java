@@ -299,7 +299,7 @@ public class HelpCommand extends AbstractClientCommand {
         sendMessage(helpMessage, true);
 
         for (ClientCommand command : commands) {
-            MutableText commandName = Text.literal("/tbgm " + command.getName()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(Identifier.of("minecraft", "default")));
+            MutableText commandName = Text.literal(command.getUsage()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(Identifier.of("minecraft", "default")));
             MutableText separator = Text.literal(" - ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default")));
             MutableText description = Text.literal(command.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default")));
             sendWrappedMessageManual(commandName, separator, description, false);
