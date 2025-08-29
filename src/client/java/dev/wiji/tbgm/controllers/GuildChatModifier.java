@@ -8,13 +8,18 @@ import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
-import java.text.Normalizer;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GuildChatModifier {
+    private static boolean isRankColorEnabled(){
+        return Config.getConfigData().customGuildRankColors;
+    }
+
+    private static boolean isChatColorEnabled(){
+        return Config.getConfigData().customGuildChatColors;
+    }
 
     private static Rank isCustomRank(String name) {
         PlayerManager.PlayerInfo playerInfo = PlayerManager.getPlayerInfo(name);
@@ -119,8 +124,20 @@ public class GuildChatModifier {
     }
 
     private static Text modifyMessageWithRank(Text originalMessage, Rank rank, boolean useCustomText) {
-        int rankColorValue = rank.getRankColor();
-        int nameColorValue = rank.getNameColor();
+        int rankColorValue;
+        int nameColorValue;
+        int rankColorBackgroundValue;
+
+        if (isRankColorEnabled()){
+            rankColorValue = rank.getRankColor();
+            nameColorValue = rank.getNameColor();
+            rankColorBackgroundValue = 0x242424;
+        } else {
+            rankColorValue = 0x000000;
+            nameColorValue = 0x00AAAA;
+            rankColorBackgroundValue = 0x55FFFF;
+        }
+
         String rankBackgroundText = useCustomText ? rank.getBackgroundText() : null;
         String rankForegroundText = useCustomText ? rank.getForegroundText() : null;
 
@@ -128,16 +145,16 @@ public class GuildChatModifier {
 
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {
             Text sibling = originalMessage.getSiblings().get(i);
-            modifiedMessage.append(processSibling(sibling, i, rankColorValue, nameColorValue, rankBackgroundText, rankForegroundText));
+            modifiedMessage.append(processSibling(sibling, i, rankColorValue, nameColorValue, rankBackgroundText, rankForegroundText, rankColorBackgroundValue));
         }
         return modifiedMessage;
     }
 
-    private static Text processSibling(Text sibling, int index, int rankColorValue, int nameColorValue, String rankBackgroundText, String rankForegroundText) {
+    private static Text processSibling(Text sibling, int index, int rankColorValue, int nameColorValue, String rankBackgroundText, String rankForegroundText, int rankColorBackgroundValue) {
         if (index == 0) {
             return processChatPrefix(sibling);
         } else if (index == 2) {
-            return createStyledText(rankBackgroundText != null ? rankBackgroundText : sibling.getString(), sibling.getStyle(), 0x242424);
+            return createStyledText(rankBackgroundText != null ? rankBackgroundText : sibling.getString(), sibling.getStyle(), rankColorBackgroundValue);
         } else if (index == 3) {
             return createStyledText(rankForegroundText != null ? rankForegroundText : sibling.getString(), sibling.getStyle(), rankColorValue);
         } else if (isName(sibling)) {
@@ -162,9 +179,11 @@ public class GuildChatModifier {
 
     private static MutableText modifyTextColor(Text sibling) {
         if (shouldModifyColor(sibling)) {
-            Style originalStyle = sibling.getStyle();
-            Style newStyle = originalStyle.withColor(TextColor.fromRgb(0xC9FFFF));
-            return Text.literal(sibling.getString()).setStyle(newStyle);
+            if (isChatColorEnabled()) {
+                Style originalStyle = sibling.getStyle();
+                Style newStyle = originalStyle.withColor(TextColor.fromRgb(0xC9FFFF));
+                return Text.literal(sibling.getString()).setStyle(newStyle);
+            }
         }
         return Text.literal(sibling.getString()).setStyle(sibling.getStyle());
     }

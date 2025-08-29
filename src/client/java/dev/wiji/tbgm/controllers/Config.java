@@ -1,6 +1,9 @@
 package dev.wiji.tbgm.controllers;
 
 import com.google.gson.Gson;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
+import me.shedaniel.clothconfig2.api.ConfigCategory;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -37,6 +40,7 @@ public class Config {
 			Gson gson = new Gson();
 			FileReader reader = new FileReader(configFile.toFile());
 			configData = gson.fromJson(reader, ConfigData.class);
+			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 			configData = ConfigData.getDefault();
@@ -45,17 +49,45 @@ public class Config {
 	}
 
 	public static Screen createConfigScreen(Screen parent) {
-		// Simple fallback screen when cloth-config is not available
-		return parent;
+		ConfigBuilder builder = ConfigBuilder.create()
+				.setParentScreen(parent)
+				.setTitle(Text.literal("Gasmask Configuration"));
+
+		ConfigCategory general = builder.getOrCreateCategory(Text.literal("General"));
+		ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+
+		general.addEntry(entryBuilder.startBooleanToggle(Text.literal("Custom Guild Rank Colors"), getConfigData().customGuildRankColors)
+				.setDefaultValue(true)
+				.setTooltip(Text.literal("Enable custom colors for guild ranks"))
+				.setSaveConsumer(newValue -> getConfigData().customGuildRankColors = newValue)
+				.build());
+
+		general.addEntry(entryBuilder.startBooleanToggle(Text.literal("Custom Guild Chat Colors"), getConfigData().customGuildChatColors)
+				.setDefaultValue(true)
+				.setTooltip(Text.literal("Enable custom colors for guild chat messages"))
+				.setSaveConsumer(newValue -> getConfigData().customGuildChatColors = newValue)
+				.build());
+
+		builder.setSavingRunnable(() -> {
+			getConfigData().save();
+		});
+
+		return builder.build();
 	}
 
 	public static class ConfigData {
+		public boolean customGuildRankColors = true;
+		public boolean customGuildChatColors = true;
+
 		public ConfigData() {
 
 		}
 
 		public static ConfigData getDefault() {
-			return new ConfigData();
+			ConfigData config = new ConfigData();
+			config.customGuildRankColors = true;
+			config.customGuildChatColors = true;
+			return config;
 		}
 
 		public void save() {
