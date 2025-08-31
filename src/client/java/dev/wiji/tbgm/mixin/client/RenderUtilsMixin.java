@@ -1,6 +1,7 @@
 package dev.wiji.tbgm.mixin.client;
 
 import dev.wiji.tbgm.badge.BadgeManager;
+import dev.wiji.tbgm.controllers.PlayerManager;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -53,14 +54,17 @@ public class RenderUtilsMixin {
     
     @ModifyVariable(method = "renderProfessionBadge", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static Identifier modifyTexture(Identifier originalTexture) {
-        // Check if we should use custom texture for current entity
         if (currentEntity instanceof PlayerEntity player) {
-            UUID playerUuid = player.getUuid();
+
+            String name = player.getName().getString();
+
+            PlayerManager.PlayerInfo info = PlayerManager.getPlayerInfo(name);
+            if (info == null) return originalTexture;
+
+            UUID playerUuid = info.getUuid();
             int customColor = BadgeManager.getBadgeColor(playerUuid, currentUOffset, currentVOffset);
             
-            if (customColor != 0) {
-                return Identifier.of("tbgm", "textures/badges.png");
-            }
+            if (customColor != 0) return Identifier.of("tbgm", "textures/badges.png");
         }
         
         return originalTexture;
