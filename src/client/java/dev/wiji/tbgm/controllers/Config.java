@@ -68,6 +68,18 @@ public class Config {
 				.setSaveConsumer(newValue -> getConfigData().customGuildChatColors = newValue)
 				.build());
 
+		general.addEntry(entryBuilder.startBooleanToggle(Text.literal("Wynnpool Mythic Weights"), getConfigData().wynnpoolMythicWeights)
+				.setDefaultValue(true)
+				.setTooltip(Text.literal("Enable Wynnpool mythic item weights in tooltips"))
+				.setSaveConsumer(newValue -> getConfigData().wynnpoolMythicWeights = newValue)
+				.build());
+
+		general.addEntry(entryBuilder.startBooleanToggle(Text.literal("Nori Mythic Weights"), getConfigData().noriMythicWeights)
+				.setDefaultValue(true)
+				.setTooltip(Text.literal("Enable Nori mythic item weights in tooltips"))
+				.setSaveConsumer(newValue -> getConfigData().noriMythicWeights = newValue)
+				.build());
+
 		builder.setSavingRunnable(() -> {
 			getConfigData().save();
 		});
@@ -78,6 +90,8 @@ public class Config {
 	public static class ConfigData {
 		public boolean customGuildRankColors = true;
 		public boolean customGuildChatColors = true;
+		public boolean wynnpoolMythicWeights = true;
+		public boolean noriMythicWeights = true;
 
 		public ConfigData() {
 
@@ -87,6 +101,8 @@ public class Config {
 			ConfigData config = new ConfigData();
 			config.customGuildRankColors = true;
 			config.customGuildChatColors = true;
+			config.wynnpoolMythicWeights = true;
+			config.noriMythicWeights = true;
 			return config;
 		}
 

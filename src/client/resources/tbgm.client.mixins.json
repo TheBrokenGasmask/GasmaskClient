@@ -8,7 +8,8 @@
 		"RenderUtilsMixin",
 		"MatchPatternMixin",
 		"NametagRendererMixin",
-		"ClientPlayPacketListenerMixin"
+		"ClientPlayPacketListenerMixin",
+		"ItemTooltipMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

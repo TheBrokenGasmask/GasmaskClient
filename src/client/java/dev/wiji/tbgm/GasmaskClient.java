@@ -3,11 +3,11 @@ package dev.wiji.tbgm;
 import dev.wiji.tbgm.commands.*;
 import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.controllers.Config;
-import dev.wiji.tbgm.controllers.PlayerManager;
 import dev.wiji.tbgm.objects.ClientCommand;
 import dev.wiji.tbgm.controllers.Updater;
 import dev.wiji.tbgm.misc.WynntilsConfig;
 import dev.wiji.tbgm.raid.RaidTracker;
+import dev.wiji.tbgm.weights.WeightManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -35,11 +35,12 @@ public class GasmaskClient implements ClientModInitializer {
 			Authentication.authInit();
 			Updater.checkForUpdates();
 		});
+
 		Updater.cleanupOldVersions();
 		registerCommands();
-
 		WynntilsConfig.modifyWynntilsConfig();
 		RaidTracker.initialize();
+		WeightManager.initialize(true, true);
 
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			for (ClientCommand command : commands) {

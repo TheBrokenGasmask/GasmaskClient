@@ -1,0 +1,31 @@
+{
+  "providers": [
+    {
+      "ascent": 7,
+      "chars": [
+        "\uEff1"
+      ],
+      "file": "tbgm:font/nori.png",
+      "height": 7,
+      "type": "bitmap"
+    },
+    {
+      "ascent": 7,
+      "chars": [
+        "\uEff2"
+      ],
+      "file": "tbgm:font/wynnpool.png",
+      "height": 7,
+      "type": "bitmap"
+    },
+    {
+      "ascent": 7,
+      "chars": [
+        "\uEff3"
+      ],
+      "file": "tbgm:font/list.png",
+      "height": 7,
+      "type": "bitmap"
+    }
+  ]
+}

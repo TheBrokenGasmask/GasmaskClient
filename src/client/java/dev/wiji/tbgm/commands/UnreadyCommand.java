@@ -170,7 +170,7 @@ public class UnreadyCommand extends AbstractClientCommand {
             if (!stack.isEmpty()) {
                 String cleanName = stripFormatting(stack.getName().getString());
 
-                if (cleanName.contains("Waiting For Others") || cleanName.contains("Looking for Players")) {
+                if (cleanName.contains("Waiting for Others") || cleanName.contains("Looking for Players")) {
                     client.execute(() -> {
                         ItemStack currentStack = slot.getStack();
                         if (!currentStack.isEmpty()) {
