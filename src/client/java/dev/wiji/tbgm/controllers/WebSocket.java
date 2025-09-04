@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.wiji.tbgm.GasmaskClient;
 import dev.wiji.tbgm.objects.Raid;
+import dev.wiji.tbgm.objects.War;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -433,9 +434,20 @@ public class WebSocket {
         if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
             System.out.println("Sending raid report: " + jsonMessage);
             ws.sendText(jsonMessage, true);
-        } else {
-            if (shouldReconnect.get()) handleConnectionLoss();
-        }
+        } else if (shouldReconnect.get()) handleConnectionLoss();
+    }
+
+    public void sendWarReport(War war) {
+        Gson gson = new Gson();
+
+        WarReportPacket warPacket = new WarReportPacket(war);
+        String jsonMessage = gson.toJson(warPacket);
+
+        java.net.http.WebSocket ws = this.webSocket;
+        if (ws != null && isConnected.get() && !ws.isOutputClosed()) {
+            System.out.println("Sending war report: " + jsonMessage);
+            ws.sendText(jsonMessage, true);
+        } else if (shouldReconnect.get()) handleConnectionLoss();
     }
 
     public ScheduledExecutorService getScheduler() {
@@ -491,6 +503,16 @@ public class WebSocket {
                 this.seasonRating = raid.seasonRating;
                 this.guildXP = raid.guildXP;
             }
+        }
+    }
+
+    public static class WarReportPacket {
+        public String type;
+        public War data;
+
+        public WarReportPacket(War war) {
+            this.type = "war_report";
+            this.data = war;
         }
     }
 }

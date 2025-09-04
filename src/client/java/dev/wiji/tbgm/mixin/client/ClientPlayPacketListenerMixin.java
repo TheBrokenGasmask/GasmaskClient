@@ -1,6 +1,8 @@
 package dev.wiji.tbgm.mixin.client;
+import com.wynntils.core.WynntilsMod;
 import dev.wiji.tbgm.controllers.PlayerManager;
 import dev.wiji.tbgm.controllers.Updater;
+import dev.wiji.tbgm.controllers.WarReport;
 import dev.wiji.tbgm.misc.Misc;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
@@ -19,6 +21,7 @@ public abstract class ClientPlayPacketListenerMixin {
         JOIN_COUNTER++;
         if (JOIN_COUNTER == 1) {
             PlayerManager.startAutoFetch();
+            WynntilsMod.registerEventListener(new WarReport());
         } else if (JOIN_COUNTER == 2) {
             new Thread(() -> {
                 try {
