@@ -20,7 +20,7 @@ public class WarReport {
 
 		long timeInWar = event.getWarBattleInfo().getTotalLengthSeconds();
 		double towerEhp = initialState.effectiveHealth();
-		double towerDps = event.getWarBattleInfo().getDps(timeInWar);
+		double towerDps = event.getWarBattleInfo().getTowerDps().low();
 		String territory = event.getWarBattleInfo().getTerritory();
 		String ownerGuild = event.getWarBattleInfo().getOwnerGuild();
 
