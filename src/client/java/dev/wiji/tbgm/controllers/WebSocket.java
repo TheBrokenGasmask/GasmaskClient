@@ -391,8 +391,9 @@ public class WebSocket {
                     String username = data.get("username").getAsString();
                     String content = data.get("message").getAsString();
                     String rank = data.get("rank").getAsString();
+                    boolean multipleRanks = data.get("multiple_ranks").getAsBoolean();
 
-                    SocketMessageHandler.messageToClient(username, rank, content);
+                    SocketMessageHandler.messageToClient(username, rank, multipleRanks, content);
                 }
             } else if (json.has("type") && "chat_announcement".equals(json.get("type").getAsString())) {
                 JsonObject data = json.getAsJsonObject("data");

@@ -7,6 +7,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class SocketMessageHandler {
         lastMessageIsGuildChat = true;
     }
 
-    public static void messageToClient(String name, String rankName, String body) {
+    public static void messageToClient(String name, String rankName, boolean multipleRanks, String body) {
         if (!isValidClient()) return;
         
         Optional<Rank> rankOptional = Rank.fromString(rankName);
@@ -46,7 +47,7 @@ public class SocketMessageHandler {
         String[] lines = splitMessageToLines(truncatedBody, CHARACTERS_PER_LINE);
         
         for (int i = 0; i < lines.length; i++) {
-            sendMessageLine(name, rankOptional.get(), lines[i], i == 0);
+            sendMessageLine(name, new Pair<>(rankOptional.get(), multipleRanks), lines[i], i == 0);
         }
         lastMessageIsGuildChat = true;
     }
@@ -140,7 +141,7 @@ public class SocketMessageHandler {
         client.execute(() -> networkHandler.onGameMessage(packet));
     }
     
-    private static void sendMessageLine(String name, Rank rank, String lineText, boolean isFirstLine) {
+    private static void sendMessageLine(String name, Pair<Rank, Boolean> rank, String lineText, boolean isFirstLine) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
         
@@ -202,7 +203,7 @@ public class SocketMessageHandler {
                 .append(bodyComponent);
     }
     
-    private static MutableText createFullMessage(String name, Rank rank, String body, int textColor) {
+    private static MutableText createFullMessage(String name, Pair<Rank, Boolean> rank, String body, int textColor) {
         MutableText chatPrefix = createChatPrefix();
         
         MutableText discordIcon = Text.literal(" ").append(Text.literal("\uEff1")
@@ -210,36 +211,38 @@ public class SocketMessageHandler {
                         .withColor(Formatting.WHITE)
                         .withFont(Identifier.of("tbgm", "decorators"))));
 
-//        MutableText starIcon = Text.literal("\uEFE0\uEff2")
-//                .setStyle(Style.EMPTY
-//                        .withColor(Formatting.WHITE)
-//                        .withFont(Identifier.of("tbgm", "decorators")));
+        MutableText starIcon = Text.literal("\uEFE0\uEff2")
+                .setStyle(Style.EMPTY
+                        .withColor(Formatting.WHITE)
+                        .withFont(Identifier.of("tbgm", "decorators")));
         
-        MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff" + rank.getBackgroundText())
+        MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff" + rank.getLeft().getBackgroundText())
                 .setStyle(Style.EMPTY
                         .withColor(0x242424)
                         .withFont(Identifier.of("minecraft", "banner/pill")));
         
-        MutableText rankForegroundComponent = Text.literal(rank.getForegroundText())
+        MutableText rankForegroundComponent = Text.literal(rank.getLeft().getForegroundText())
                 .setStyle(Style.EMPTY
-                        .withColor(rank.getRankColor())
+                        .withColor(rank.getLeft().getRankColor())
                         .withFont(Identifier.of("minecraft", "banner/pill"))
                         .withShadowColor(16777215));
         
         MutableText nameComponent = Text.literal(" " + name + ":")
                 .setStyle(Style.EMPTY
-                        .withColor(rank.getNameColor())
+                        .withColor(rank.getLeft().getNameColor())
                         .withFont(Identifier.of("minecraft", "default")));
         
         MutableText bodyComponent = Text.literal(" ").append(parseUrls(body, textColor));
         
+        chatPrefix.append(discordIcon);
+
+        if (rank.getRight()) chatPrefix.append(starIcon);
+
         return chatPrefix
-                .append(discordIcon)
-//                .append(starIcon)
-                .append(rankBackgroundComponent)
-                .append(rankForegroundComponent)
-                .append(nameComponent)
-                .append(bodyComponent);
+            .append(rankBackgroundComponent)
+            .append(rankForegroundComponent)
+            .append(nameComponent)
+            .append(bodyComponent);
     }
     
     private static MutableText createContinuationMessage(String body, int textColor) {

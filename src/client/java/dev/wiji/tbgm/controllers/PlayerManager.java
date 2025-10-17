@@ -36,17 +36,19 @@ public class PlayerManager {
         private final String username;
         private final String guild;
         private final String rank;
+        private final boolean multipleRanks;
         private final int needsAspects;
         private final List<CustomBadge> badges;
         private final boolean hasDiscordLink;
         private final long lastUpdated;
         
-        public PlayerInfo(UUID uuid, String username, String guild, String rank, 
+        public PlayerInfo(UUID uuid, String username, String guild, String rank, boolean multipleRanks,
                          int needsAspects, List<CustomBadge> badges, boolean hasDiscordLink) {
             this.uuid = uuid;
             this.username = username;
             this.guild = guild;
             this.rank = rank;
+            this.multipleRanks = multipleRanks;
             this.needsAspects = needsAspects;
             this.badges = badges != null ? new ArrayList<>(badges) : new ArrayList<>();
             this.hasDiscordLink = hasDiscordLink;
@@ -58,6 +60,7 @@ public class PlayerManager {
         public String getUsername() { return username; }
         public String getGuild() { return guild; }
         public String getRank() { return rank; }
+        public boolean hasMultipleRanks() { return multipleRanks; }
         public int getNeedsAspects() { return needsAspects; }
         public List<CustomBadge> getBadges() { return new ArrayList<>(badges); }
         public boolean hasDiscordLink() { return hasDiscordLink; }
@@ -186,7 +189,9 @@ public class PlayerManager {
             if (playerObj.has("rank") && !playerObj.get("rank").isJsonNull()) {
                 rank = playerObj.get("rank").getAsString();
             }
-            
+
+            boolean multipleRanks = playerObj.get("multiple_ranks").getAsBoolean();
+
             int needsAspects = playerObj.get("needs_aspects").getAsInt();
             boolean hasDiscordLink = playerObj.get("has_discord_link").getAsBoolean();
             
@@ -209,7 +214,7 @@ public class PlayerManager {
             }
             
             // Create and store player info
-            PlayerInfo playerInfo = new PlayerInfo(uuid, username, guild, rank, needsAspects, badges, hasDiscordLink);
+            PlayerInfo playerInfo = new PlayerInfo(uuid, username, guild, rank, multipleRanks, needsAspects, badges, hasDiscordLink);
             playerInfoMap.put(uuid, playerInfo);
             
             if (!badges.isEmpty()) BadgeManager.replaceBadges(uuid, badges);
