@@ -144,13 +144,7 @@ public enum Rank {
     public static String makeBackgroundText(String word) {
         StringBuilder background = new StringBuilder();
 
-        // 1. Calculate the required pixel offset
-        // Based on COMMANDER (9 chars) needing 56 pixels, the factor is ~6.22 pixels/char.
-        // Using 6.22 as the multiplier for accuracy, casting the result to an int.
-        // We only need to consider the alphabetical characters for spacing.
-        long alphaLength = word.toLowerCase().chars().filter(Character::isLetter).count();
-
-        // Use 6 as a safe, round integer multiplier.
+        // Pixel offset is 6 per character (by default), except for 'i' which is 4 pixels + 2 pixels base
         int pixelOffset = 2;
 
         for(char c : word.toCharArray()) {
