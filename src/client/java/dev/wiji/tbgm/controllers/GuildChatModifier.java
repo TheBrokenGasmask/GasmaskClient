@@ -141,6 +141,7 @@ public class GuildChatModifier {
         String rankBackgroundText = useCustomText ? rank.getBackgroundText() : null;
         String rankForegroundText = useCustomText ? rank.getForegroundText() : null;
 
+
         MutableText modifiedMessage = Text.empty().setStyle(originalMessage.getStyle());
 
         for (int i = 0; i < originalMessage.getSiblings().size(); i++) {

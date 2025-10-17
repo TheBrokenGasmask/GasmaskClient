@@ -208,7 +208,12 @@ public class SocketMessageHandler {
         MutableText discordIcon = Text.literal(" ").append(Text.literal("\uEff1")
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.WHITE)
-                        .withFont(Identifier.of("tbgm", "discord"))));
+                        .withFont(Identifier.of("tbgm", "decorators"))));
+
+//        MutableText starIcon = Text.literal("\uEFE0\uEff2")
+//                .setStyle(Style.EMPTY
+//                        .withColor(Formatting.WHITE)
+//                        .withFont(Identifier.of("tbgm", "decorators")));
         
         MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff" + rank.getBackgroundText())
                 .setStyle(Style.EMPTY
@@ -230,6 +235,7 @@ public class SocketMessageHandler {
         
         return chatPrefix
                 .append(discordIcon)
+//                .append(starIcon)
                 .append(rankBackgroundComponent)
                 .append(rankForegroundComponent)
                 .append(nameComponent)

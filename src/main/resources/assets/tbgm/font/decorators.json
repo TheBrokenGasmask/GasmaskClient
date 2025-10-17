@@ -1,0 +1,25 @@
+{
+  "providers": [
+    {
+      "advances": {
+        "‌":-2,
+        "\uEFE0": -2
+      },
+      "type":"space"
+    },
+    {
+      "ascent": 7,
+      "chars": ["\uEff1"],
+      "file": "tbgm:font/discord.png",
+      "height": 7,
+      "type": "bitmap"
+    },
+    {
+      "ascent": 7,
+      "chars": ["\uEff2"],
+      "file": "tbgm:font/star.png",
+      "height": 7,
+      "type": "bitmap"
+    }
+  ]
+}

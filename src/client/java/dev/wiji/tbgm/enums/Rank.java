@@ -4,62 +4,66 @@ import java.util.Optional;
 
 public enum Rank {
     OWNER("owner",
-            "\ue060\udaff\udfff\ue03e\udaff\udfff\ue046\udaff\udfff\ue03d\udaff\udfff\ue034\udaff\udfff\ue041\udaff\udfff\ue062\udaff\udfe0",
-            "\uE00E\uE016\uE00D\uE004\uE011\uDB00\uDC02",
+            makeBackgroundText("owner"),
+            makeForegroundText("owner"),
             0x00FF6D,
             0x32FF84, 6),
 
     CHIEF("chief",
-            "\ue060\udaff\udfff\ue032\udaff\udfff\ue037\udaff\udfff\ue038\udaff\udfff\ue034\udaff\udfff\ue035\udaff\udfff\ue062\udaff\udfe2",
-            "\uE002\uE007\uE008\uE004\uE005\uDB00\uDC02",
+            makeBackgroundText("chief"),
+            makeForegroundText("chief"),
             0xF2201D,
             0xF24441, 5),
 
     STRATEGIST("strategist",
-            "\ue060\udaff\udfff\ue042\udaff\udfff\ue043\udaff\udfff\ue041\udaff\udfff\ue030\udaff\udfff\ue043\udaff\udfff\ue034\udaff\udfff\ue036\udaff\udfff\ue038\udaff\udfff\ue042\udaff\udfff\ue043\udaff\udfff\ue062\udaff\udfc4",
-            "\uE012\uE013\uE011\uE000\uE013\uE004\uE006\uE008\uE012\uE013\uDB00\uDC02",
+            makeBackgroundText("strategist"),
+            makeForegroundText("strategist"),
             0xFF7B00,
             0xFF8B26, 4),
 
     CAPTAIN("captain",
-            "\ue060\udaff\udfff\ue032\udaff\udfff\ue030\udaff\udfff\ue03f\udaff\udfff\ue043\udaff\udfff\ue030\udaff\udfff\ue038\udaff\udfff\ue03d\udaff\udfff\ue062\udaff\udfd6",
-            "\uE002\uE000\uE00F\uE013\uE000\uE008\uE00D\uDB00\uDC02",
+            makeBackgroundText("captain"),
+            makeForegroundText("captain"),
             0xFFD704,
             0xFFDB2B, 3),
 
     RECRUITER("recruiter",
-            "\ue060\udaff\udfff\ue041\udaff\udfff\ue034\udaff\udfff\ue032\udaff\udfff\ue041\udaff\udfff\ue044\udaff\udfff\ue038\udaff\udfff\ue043\udaff\udfff\ue034\udaff\udfff\ue041\udaff\udfff\ue062\udaff\udfca",
-            "\uE011\uE004\uE002\uE011\uE014\uE008\uE013\uE004\uE011\uDB00\uDC02",
+            makeBackgroundText("recruiter"),
+            makeForegroundText("recruiter"),
             0x00C24D,
             0x1DC15C, 2),
 
     RECRUIT("recruit",
-            "\ue060\udaff\udfff\ue041\udaff\udfff\ue034\udaff\udfff\ue032\udaff\udfff\ue041\udaff\udfff\ue044\udaff\udfff\ue038\udaff\udfff\ue043\udaff\udfff\ue062\udaff\udfd6",
-            "\uE011\uE004\uE002\uE011\uE014\uE008\uE013\uDB00\uDC02",
+            makeBackgroundText("recruit"),
+            makeForegroundText("recruit"),
             0x2197FF,
             0x47A9FF, 1),
 
     OFFICER("officer",
-            "\uE060\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE035\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE034\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD6",
-            "\uE00E\uE005\uE005\uE008\uE002\uE004\uE011\uDB00\uDC02",
+            makeBackgroundText("officer"),
+            makeForegroundText("officer"),
             0xFF42FB,
             0xFF6BFC, -1),
-
+    COMMANDER("commander",
+            makeBackgroundText("commander"),
+            makeForegroundText("commander"),
+            0x9D55D4,
+            0xAD80CF, -1),
     ADVISOR("advisor",
-            "\uE060\uDAFF\uDFFF\uE030\uDAFF\uDFFF\uE033\uDAFF\uDFFF\uE045\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE042\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE041\uDAFF\uDFFF\uE062\uDAFF\uDFD6",
-            "\uE000\uE003\uE015\uE008\uE012\uE00E\uE011\uDB00\uDC02",
+            makeBackgroundText("advisor"),
+            makeForegroundText("advisor"),
             0x2DD2D6,
             0x4ED1D3, -1),
 
     COUNCIL("council",
-            "\uE060\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE03E\uDAFF\uDFFF\uE044\uDAFF\uDFFF\uE03D\uDAFF\uDFFF\uE032\uDAFF\uDFFF\uE038\uDAFF\uDFFF\uE03B\uDAFF\uDFFF\uE062\uDAFF\uDFD6",
-            "\uE002\uE00E\uE014\uE00D\uE002\uE008\uE00B\uDB00\uDC02",
+            makeBackgroundText("council"),
+            makeForegroundText("council"),
             0x28E299,
             0x4AE0A4, -1),
 
     TBGM("tbgm",
-            "\uE060\uDAFF\uDFFF\uE043\uDAFF\uDFFF\uE031\uDAFF\uDFFF\uE036\uDAFF\uDFFF\uE03C\uDAFF\uDFFF\uE062\udaff\udfef\udaff\udff7",
-            "\uE013\uE001\uE006\uE00C\uDB00\uDC02",
+            makeBackgroundText("tbgm"),
+            makeForegroundText("tbgm"),
             0xf70a0e,
             0xfc3d40, -1);
 
@@ -135,5 +139,73 @@ public enum Rank {
     @Override
     public String toString() {
         return rankPlainText;
+    }
+
+    public static String makeBackgroundText(String word) {
+        StringBuilder background = new StringBuilder();
+
+        // 1. Calculate the required pixel offset
+        // Based on COMMANDER (9 chars) needing 56 pixels, the factor is ~6.22 pixels/char.
+        // Using 6.22 as the multiplier for accuracy, casting the result to an int.
+        // We only need to consider the alphabetical characters for spacing.
+        long alphaLength = word.toLowerCase().chars().filter(Character::isLetter).count();
+
+        // Use 6 as a safe, round integer multiplier.
+        int pixelOffset = 2;
+
+        for(char c : word.toCharArray()) {
+            pixelOffset += (c == 'i' || c == 'I' ? 4 : 6);
+        }
+
+        // Ensure the minimum offset is used for single/short words to prevent errors
+        if (pixelOffset < 10) {
+            pixelOffset = 10;
+        }
+
+        // start cap \uE060\uDAFF\uDFFF
+        background.append('\uE060').append('\uDAFF').append('\uDFFF');
+
+        // 2. Append character codes
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                // Letter code \uE030 to \uE049 (for 'a' to 'z')
+                int code = 0xE030 + (Character.toLowerCase(c) - 'a');
+                background.append((char) code).append('\uDAFF').append('\uDFFF');
+            } else {
+                // fallback for non-letter chars: \uE03F + \uDAFF\uDFFF
+                background.append('\uE03F').append('\uDAFF').append('\uDFFF');
+            }
+        }
+
+        // end cap \uE062
+        background.append('\uE062');
+
+        // 3. Encode the pixel offset into the surrogate pair (B = 256 - P)
+        int lowByteValue = 0x100 - (pixelOffset & 0xFF);
+
+        char lowSurrogate = (char) (0xDF00 | lowByteValue);
+        background.append('\uDAFF').append(lowSurrogate);
+
+        return background.toString();
+    }
+
+    // Corrected makeForegroundText
+    public static String makeForegroundText(String word) {
+        StringBuilder foreground = new StringBuilder();
+
+        for (char c : word.toCharArray()) {
+            if (Character.isLetter(c)) {
+                // Letter code \uE000 to \uE019 (for 'a' to 'z')
+                int code = 0xE000 + (Character.toLowerCase(c) - 'a');
+                foreground.append((char) code);
+            } else {
+                // fallback for non-letter chars: \uE00F
+                foreground.append('\uE00F');
+            }
+        }
+
+        // terminator marker \uDB00\uDC02 (a single character represented by a surrogate pair)
+        foreground.append('\uDB00').append('\uDC02');
+        return foreground.toString();
     }
 }

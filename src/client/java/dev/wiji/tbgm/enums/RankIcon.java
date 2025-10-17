@@ -5,12 +5,13 @@ public enum RankIcon {
         RECRUIT("\uE101", "Recruit"),
         RECRUITER("\uE102", "Recruiter"),
         CAPTAIN("\uE103", "Captain"),
-        OFFICER("\uE104", "Officer"),
-        STRATEGIST("\uE105", "Strategist"),
-        ADVISOR("\uE106", "Advisor"),
-        CHIEF("\uE107", "Chief"),
-        COUNCIL("\uE108", "Council"),
-        OWNER("\uE109", "Owner");
+        COMMANDER("\uE104", "Commander"),
+        OFFICER("\uE105", "Officer"),
+        STRATEGIST("\uE106", "Strategist"),
+        ADVISOR("\uE107", "Advisor"),
+        CHIEF("\uE108", "Chief"),
+        COUNCIL("\uE109", "Council"),
+        OWNER("\uE110", "Owner");
         
         private final String character;
         private final String displayName;
