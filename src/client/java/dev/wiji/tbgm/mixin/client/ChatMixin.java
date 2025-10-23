@@ -23,6 +23,7 @@ public class ChatMixin {
         if (!threadName.startsWith("Netty Client IO")) return;
 
         Text message = packet.content();
+
         RaidReport.parseChatMessage(message);
         AspectReport.parseChatMessage(message);
         String username = DiscordBridge.parseChatMessage(message);
