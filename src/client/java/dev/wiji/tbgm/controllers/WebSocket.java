@@ -493,6 +493,7 @@ public class WebSocket {
             public String reporter;
             public int seasonRating;
             public int guildXP;
+            public int duration;
 
             public RaidData(Raid raid) {
                 this.raid = String.valueOf(raid.raidType.id);
@@ -503,6 +504,7 @@ public class WebSocket {
                 this.reporter = raid.reporter.toString();
                 this.seasonRating = raid.seasonRating;
                 this.guildXP = raid.guildXP;
+                this.duration = raid.durationSeconds;
             }
         }
     }

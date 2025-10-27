@@ -10,13 +10,15 @@ public class Raid {
 	public UUID reporter;
 	public int seasonRating;
 	public int guildXP;
+	public int durationSeconds;
 
-	public Raid(RaidType raidType, String[] players, UUID reporter, int seasonRating, int guildXP) {
+	public Raid(RaidType raidType, String[] players, UUID reporter, int seasonRating, int guildXP, int durationSeconds) {
 		this.raidType = raidType;
 		this.players = players;
 		this.reporter = reporter;
 		this.seasonRating = seasonRating;
 		this.guildXP = guildXP;
+		this.durationSeconds = durationSeconds;
 
 		if(players.length != 4) throw new RuntimeException("Invalid number of players in raid! Expected 4, got " + players.length);
 	}
