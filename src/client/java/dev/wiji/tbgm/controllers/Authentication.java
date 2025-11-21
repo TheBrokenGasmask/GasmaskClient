@@ -114,10 +114,9 @@ public class Authentication {
 			System.out.println("Token validation result: " + isValid + " (HTTP " + responseCode + ")");
 			TOKEN_VALIDATED.set(isValid);
 
-			if (!isValid) {
-				if (responseCode == 401 && webSocket.isConnected()) {
-					return true;
-				}
+			if (responseCode == 401) {
+				sendAuthRequest();
+				return false;
 			}
 
 			return isValid;
@@ -229,12 +228,17 @@ public class Authentication {
 
 	public static void checkForAuthentication() {
 		if (token != null && !token.isEmpty() && TOKEN_VALIDATED.get()) {
-			if (validateCurrentToken()) {
+			boolean stillValid = validateCurrentToken();
+
+			if (stillValid) {
 				if (!webSocket.isConnected()) {
 					connectWebSocketDebounced();
 				}
 				return;
 			}
+
+			sendAuthRequest();
+			return;
 		}
 
 		UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
@@ -261,9 +265,7 @@ public class Authentication {
 				return;
 			}
 
-			if (!webSocket.isConnected()) {
-				sendAuthRequest();
-			}
+			sendAuthRequest();
 		} catch (Exception e) {
 			if (!webSocket.isConnected()) {
 				sendAuthRequest();
