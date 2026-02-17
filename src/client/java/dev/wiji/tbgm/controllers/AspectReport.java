@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,10 +39,10 @@ public class AspectReport {
 			receiver = nameMap.get(receiver).removeFirst();
 		}
 
-		ClientPlayerEntity player = MinecraftClient.getInstance().player;
+		UUID player = MinecraftClient.getInstance().getSession().getUuidOrNull();
 		if (player == null) return;
 
-		Aspect aspect = new Aspect(giver, receiver, player.getGameProfile().getId());
+		Aspect aspect = new Aspect(giver, receiver, player);
 		new Thread(() -> reportAspect(aspect)).start();
 	}
 

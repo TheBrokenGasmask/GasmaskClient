@@ -24,7 +24,9 @@ public class WarReport {
 		String territory = event.getWarBattleInfo().getTerritory();
 		String ownerGuild = event.getWarBattleInfo().getOwnerGuild();
 
-		UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
+		UUID reporterID = MinecraftClient.getInstance().getSession().getUuidOrNull();
+		if (reporterID == null) return;
+
 		War war = new War(reporterID, timeInWar, towerEhp, towerDps, territory, ownerGuild);
 
 		Authentication.getWebSocketManager().sendWarReport(war);

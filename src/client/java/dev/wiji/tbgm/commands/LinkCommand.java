@@ -11,6 +11,7 @@ import dev.wiji.tbgm.controllers.Authentication;
 import dev.wiji.tbgm.objects.AbstractClientCommand;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -57,7 +58,7 @@ public class LinkCommand extends AbstractClientCommand {
 			urlBuilder.append(baseUrl).append("/api/verify-link?");
 			urlBuilder.append("code=").append(code);
 			urlBuilder.append("&token=").append(Authentication.token);
-			urlBuilder.append("&uuid=").append(source.getPlayer().getGameProfile().getId());
+			urlBuilder.append("&uuid=").append(MinecraftClient.getInstance().getSession().getUuidOrNull());
 
 			try {
 				URL url = URI.create(urlBuilder.toString()).toURL();

@@ -58,7 +58,8 @@ public class RaidReport {
 		String sr = matcher.groupCount() >= 9 ? matcher.group(9) : "0";
 
 		RaidType raidType = RaidType.getRaidType(raidString);
-		UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
+		UUID reporterID = MinecraftClient.getInstance().getSession().getUuidOrNull();
+		if (reporterID == null) return;
 
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if(player == null) return;

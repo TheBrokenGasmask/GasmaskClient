@@ -1,5 +1,6 @@
 package dev.wiji.tbgm.commands;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import dev.wiji.tbgm.GasmaskClient;
@@ -38,7 +39,7 @@ public class ToggleAspectsCommand extends AbstractClientCommand {
 
 	private int executeToggle(CommandContext<FabricClientCommandSource> source) {
 		new Thread(() -> {
-			UUID reporterID = MinecraftClient.getInstance().getGameProfile().getId();
+			UUID reporterID = MinecraftClient.getInstance().getSession().getUuidOrNull();
 
 			StringBuilder urlBuilder = new StringBuilder();
 			String baseUrl = GasmaskClient.getApiUrl();

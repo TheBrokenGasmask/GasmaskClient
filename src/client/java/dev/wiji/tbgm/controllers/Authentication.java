@@ -96,7 +96,7 @@ public class Authentication {
 		}
 
 		try {
-			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
+			UUID uuid = MinecraftClient.getInstance().getSession().getUuidOrNull();
 			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
@@ -150,7 +150,7 @@ public class Authentication {
 	}
 
 	public static String performAuthentication() {
-		UUID selectedProfile = MinecraftClient.getInstance().getGameProfile().getId();
+		UUID selectedProfile = MinecraftClient.getInstance().getSession().getUuidOrNull();
 		String accessToken = MinecraftClient.getInstance().getSession().getAccessToken();
 		String newToken = getToken(selectedProfile.toString());
 
@@ -237,7 +237,7 @@ public class Authentication {
 			}
 		}
 
-		UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
+		UUID uuid = MinecraftClient.getInstance().getSession().getUuidOrNull();
 
 		try {
 			String baseUrl = GasmaskClient.getApiUrl();
@@ -273,7 +273,7 @@ public class Authentication {
 
 	public static String getWebSocketToken() {
 		try {
-			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
+			UUID uuid = MinecraftClient.getInstance().getSession().getUuidOrNull();
 			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
@@ -316,7 +316,7 @@ public class Authentication {
 		}
 
 		try {
-			UUID uuid = MinecraftClient.getInstance().getGameProfile().getId();
+			UUID uuid = MinecraftClient.getInstance().getSession().getUuidOrNull();
 			String baseUrl = GasmaskClient.getApiUrl();
 			if(baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
 
