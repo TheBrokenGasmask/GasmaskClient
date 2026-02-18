@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -51,7 +52,7 @@ public class HelpCommand extends AbstractClientCommand {
 
     private void sendMessage(Text message, boolean useFlag) {
         MutableText prefix = Text.literal((useFlag ? DiscordBridge.GUILD_CHAT_PREFIX_FLAG : DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE) + " ")
-                .setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "chat/prefix")));
+                .setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(prefix.append(message));
     }
 
@@ -295,17 +296,17 @@ public class HelpCommand extends AbstractClientCommand {
     private int executeHelp(CommandContext<FabricClientCommandSource> context) {
         MutableText helpMessage = Text.empty()
                 .append(getTbgmComponent())
-                .append(Text.literal("Available commands").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))));
+                .append(Text.literal("Available commands").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))));
         sendMessage(helpMessage, true);
 
         for (ClientCommand command : commands) {
-            MutableText commandName = Text.literal(command.getUsage()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(Identifier.of("minecraft", "default")));
-            MutableText separator = Text.literal(" - ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default")));
-            MutableText description = Text.literal(command.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default")));
+            MutableText commandName = Text.literal(command.getUsage()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
+            MutableText separator = Text.literal(" - ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
+            MutableText description = Text.literal(command.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
             sendWrappedMessageManual(commandName, separator, description, false);
         }
 
-        sendWrappedMessage(Text.literal("Use '/tbgm help <command>' for more information about a specific command.").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
+        sendWrappedMessage(Text.literal("Use '/tbgm help <command>' for more information about a specific command.").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))), false);
 
         return 1;
     }
@@ -322,15 +323,15 @@ public class HelpCommand extends AbstractClientCommand {
             ClientCommand cmd = command.get();
             MutableText commandMessage = Text.empty()
                     .append(getTbgmComponent())
-                    .append(Text.literal("Command: ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))))
-                    .append(Text.literal("/tbgm " + cmd.getName()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(Identifier.of("minecraft", "default"))));
+                    .append(Text.literal("Command: ").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))))
+                    .append(Text.literal("/tbgm " + cmd.getName()).setStyle(Style.EMPTY.withColor(COMMAND_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))));
             sendMessage(commandMessage, true);
 
-            sendWrappedMessage(Text.literal("Description:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
-            sendWrappedMessage(Text.literal(cmd.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
+            sendWrappedMessage(Text.literal("Description:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))), false);
+            sendWrappedMessage(Text.literal(cmd.getDescription()).setStyle(Style.EMPTY.withColor(DESCRIPTION_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))), false);
 
-            sendWrappedMessage(Text.literal("Usage:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
-            sendWrappedMessage(Text.literal(cmd.getUsage()).setStyle(Style.EMPTY.withColor(USAGE_COLOR).withFont(Identifier.of("minecraft", "default"))), false);
+            sendWrappedMessage(Text.literal("Usage:").setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))), false);
+            sendWrappedMessage(Text.literal(cmd.getUsage()).setStyle(Style.EMPTY.withColor(USAGE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))), false);
 
         } else {
             sendErrorMessage(source, "Command not found: " + commandName);
@@ -345,12 +346,12 @@ public class HelpCommand extends AbstractClientCommand {
         MutableText guildAlertComponent = Text.literal(tbgmRank.getBackgroundText())
                 .setStyle(Style.EMPTY
                         .withColor(0x242424)
-                        .withFont(Identifier.of("minecraft", "banner/pill")));
-        
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill"))));
+
         MutableText guildAlertForegroundComponent = Text.literal(tbgmRank.getForegroundText())
                 .setStyle(Style.EMPTY
                         .withColor(tbgmRank.getRankColor())
-                        .withFont(Identifier.of("minecraft", "banner/pill")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill"))));
         
         return guildAlertComponent.append(guildAlertForegroundComponent).append(Text.literal(" "));
     }

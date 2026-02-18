@@ -1,5 +1,7 @@
 package dev.wiji.tbgm.controllers;
 
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.text.Style;
 
@@ -70,15 +72,12 @@ public class DiscordBridge {
 
                     String extractedName = null;
 
-                    if (style.getHoverEvent() != null) {
-                        Object hoverValue = style.getHoverEvent().getValue(style.getHoverEvent().getAction());
-                        if (hoverValue instanceof Text hoverText) {
-                            String hoverString = hoverText.getString();
-                            Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
-                            Matcher hoverMatcher = hoverPattern.matcher(hoverString);
-                            if (hoverMatcher.find()) {
-                                extractedName = hoverMatcher.group(2);
-                            }
+                    if (style.getHoverEvent() instanceof HoverEvent.ShowText(Text value)) {
+                        String hoverString = value.getString();
+                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
+                        Matcher hoverMatcher = hoverPattern.matcher(hoverString);
+                        if (hoverMatcher.find()) {
+                            extractedName = hoverMatcher.group(2);
                         }
                     }
 
@@ -112,9 +111,8 @@ public class DiscordBridge {
             int startPos = position[0];
             int endPos = startPos + content.length();
 
-            if (style.getClickEvent() != null &&
-                    style.getClickEvent().getAction().toString().equals("OPEN_URL")) {
-                String actualUrl = style.getClickEvent().getValue();
+            if (style.getClickEvent() instanceof ClickEvent.OpenUrl(java.net.URI uri)) {
+                String actualUrl = uri.toString();
                 urlClickEvents.add(new UrlClickEvent(startPos, endPos, actualUrl));
             }
             position[0] = endPos;

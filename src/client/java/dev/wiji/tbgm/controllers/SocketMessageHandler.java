@@ -9,6 +9,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +86,7 @@ public class SocketMessageHandler {
         return Text.literal(text)
                 .setStyle(Style.EMPTY
                         .withColor(color)
-                        .withFont(Identifier.of("minecraft", "default")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
     }
     
     private static MutableText createUrlComponent(String url) {
@@ -93,9 +94,9 @@ public class SocketMessageHandler {
                 .setStyle(Style.EMPTY
                         .withColor(0xabffff)
                         .withUnderline(true)
-                        .withFont(Identifier.of("minecraft", "default"))
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default")))
+                        .withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
+                        .withHoverEvent(new HoverEvent.ShowText(
                                 Text.literal("Click to open in browser")
                                         .setStyle(Style.EMPTY.withColor(Formatting.GRAY)))));
     }
@@ -132,7 +133,7 @@ public class SocketMessageHandler {
             MutableText continuationPrefix = Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.AQUA)
-                            .withFont(Identifier.of("minecraft", "chat/prefix")));
+                            .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:chat/prefix"))));
             MutableText bodyComponent = createBodyComponent(lineText, textColor);
             finalMessage = continuationPrefix.append(bodyComponent);
         }
@@ -164,14 +165,14 @@ public class SocketMessageHandler {
         return Text.literal(getChatPrefix())
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
-                        .withFont(Identifier.of("minecraft", "chat/prefix")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:chat/prefix"))));
     }
     
     private static MutableText createBodyComponent(String text, int color) {
         return Text.literal(" " + text)
                 .setStyle(Style.EMPTY
                         .withColor(color)
-                        .withFont(Identifier.of("minecraft", "default")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
     }
     
     private static MutableText createGuildAlertMessage(MutableText chatPrefix, String body, int textColor) {
@@ -180,18 +181,18 @@ public class SocketMessageHandler {
         MutableText guildAlertComponent = Text.literal(tbgmRank.getBackgroundText())
                 .setStyle(Style.EMPTY
                         .withColor(0x242424)
-                        .withFont(Identifier.of("minecraft", "banner/pill")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill"))));
         
         MutableText guildAlertForegroundComponent = Text.literal(tbgmRank.getForegroundText())
                 .setStyle(Style.EMPTY
                         .withColor(tbgmRank.getRankColor())
-                        .withFont(Identifier.of("minecraft", "banner/pill"))
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill")))
                         .withShadowColor(16777215));
         
         MutableText colonComponent = Text.literal(":")
                 .setStyle(Style.EMPTY
                         .withColor(tbgmRank.getRankColor())
-                        .withFont(Identifier.of("minecraft", "default")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
         
         MutableText bodyComponent = createBodyComponent(body, textColor);
         
@@ -209,28 +210,28 @@ public class SocketMessageHandler {
         MutableText discordIcon = Text.literal(" ").append(Text.literal("\uEff1")
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.WHITE)
-                        .withFont(Identifier.of("tbgm", "decorators"))));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm:decorators")))));
 
         MutableText starIcon = Text.literal("\uEFE0\uEff2")
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.WHITE)
-                        .withFont(Identifier.of("tbgm", "decorators")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm:decorators"))));
         
         MutableText rankBackgroundComponent = Text.literal("\udaff\udfff\udaff\udfff" + rank.getLeft().getBackgroundText())
                 .setStyle(Style.EMPTY
                         .withColor(0x242424)
-                        .withFont(Identifier.of("minecraft", "banner/pill")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill"))));
         
         MutableText rankForegroundComponent = Text.literal(rank.getLeft().getForegroundText())
                 .setStyle(Style.EMPTY
                         .withColor(rank.getLeft().getRankColor())
-                        .withFont(Identifier.of("minecraft", "banner/pill"))
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill")))
                         .withShadowColor(16777215));
         
         MutableText nameComponent = Text.literal(" " + name + ":")
                 .setStyle(Style.EMPTY
                         .withColor(rank.getLeft().getNameColor())
-                        .withFont(Identifier.of("minecraft", "default")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
         
         MutableText bodyComponent = Text.literal(" ").append(parseUrls(body, textColor));
         
@@ -249,7 +250,7 @@ public class SocketMessageHandler {
         MutableText continuationPrefix = Text.literal(DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE)
                 .setStyle(Style.EMPTY
                         .withColor(Formatting.AQUA)
-                        .withFont(Identifier.of("minecraft", "chat/prefix")));
+                        .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:chat/prefix"))));
         
         MutableText bodyComponent = Text.literal(" ").append(parseUrls(body, textColor));
         return continuationPrefix.append(bodyComponent);

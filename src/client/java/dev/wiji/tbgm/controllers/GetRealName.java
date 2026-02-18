@@ -31,10 +31,9 @@ public class GetRealName {
     private static void tryToAddRealName(Text message, HashMap<String, List<String>> nameMap) {
         if (messageHasNickHover(message)) {
             HoverEvent hover = message.getStyle().getHoverEvent();
-            if (hover == null) return;
-            if (hover.getValue(hover.getAction()) instanceof Text hoverText) {
+            if (hover instanceof HoverEvent.ShowText(Text value)) {
                 final String regex = "(.*?)'s? real name is (.*)";
-                Matcher matcher = Pattern.compile(regex, Pattern.MULTILINE).matcher(hoverText.getString());
+                Matcher matcher = Pattern.compile(regex, Pattern.MULTILINE).matcher(value.getString());
                 if (!matcher.matches()) return;
                 String realName = matcher.group(2);
                 String nickname = matcher.group(1);
@@ -60,8 +59,8 @@ public class GetRealName {
     }
     public static boolean messageHasNickHover(Text message) {
         HoverEvent hover = message.getStyle().getHoverEvent();
-        if (hover != null && hover.getValue(hover.getAction()) instanceof Text hoverText) {
-            return hoverText.getString().contains("real name");
+        if (hover instanceof HoverEvent.ShowText(Text value)) {
+            return value.getString().contains("real name");
         }
         return false;
     }

@@ -6,6 +6,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.GameMessageS2CPacket;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -56,18 +57,18 @@ public class Misc {
 		MutableText guildAlertComponent = Text.literal(tbgmRank.getBackgroundText())
 				.setStyle(Style.EMPTY
 							.withColor(0x242424)
-							.withFont(Identifier.of("minecraft", "banner/pill")));
+							.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill"))));
 
 		MutableText guildAlertForegroundComponent = Text.literal(tbgmRank.getForegroundText())
 				.setStyle(Style.EMPTY
 							.withColor(tbgmRank.getRankColor())
-							.withFont(Identifier.of("minecraft", "banner/pill"))
+							.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill")))
 							.withShadowColor(16777215));
 
 		MutableText bodyComponent = Text.literal(" " + message)
 				.setStyle(Style.EMPTY
 							.withColor(color)
-							.withFont(Identifier.of("minecraft", "default")));
+							.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/default"))));
 
 		MutableText finalMessage = guildAlertComponent
 				.append(guildAlertForegroundComponent)

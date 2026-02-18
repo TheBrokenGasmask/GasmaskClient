@@ -1,10 +1,7 @@
 package dev.wiji.tbgm.controllers;
 
 import dev.wiji.tbgm.enums.Rank;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -76,19 +73,17 @@ public class GuildChatModifier {
                 if (COLOR.equalsIgnoreCase(colorName)) {
                     String extractedName = null;
 
-                    if (style.getHoverEvent() != null) {
-                        Object hoverValue = style.getHoverEvent().getValue(style.getHoverEvent().getAction());
-                        if (hoverValue instanceof Text hoverText) {
-                            String hoverString = hoverText.getString();
-                            Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
-                            Matcher hoverMatcher = hoverPattern.matcher(hoverString);
-                            if (hoverMatcher.find()) extractedName = hoverMatcher.group(2);
+                    if (style.getHoverEvent() instanceof HoverEvent.ShowText(Text value)) {
+                        String hoverString = value.getString();
+                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
+                        Matcher hoverMatcher = hoverPattern.matcher(hoverString);
+                        if (hoverMatcher.find()) extractedName = hoverMatcher.group(2);
 
-                            Pattern nicknamePattern = Pattern.compile("^(.*?)'?s nickname is (.*)$");
-                            Matcher nicknameMatcher = nicknamePattern.matcher(hoverString);
-                            if (nicknameMatcher.find()) extractedName = nicknameMatcher.group(1);
-                        }
+                        Pattern nicknamePattern = Pattern.compile("^(.*?)'?s nickname is (.*)$");
+                        Matcher nicknameMatcher = nicknamePattern.matcher(hoverString);
+                        if (nicknameMatcher.find()) extractedName = nicknameMatcher.group(1);
                     }
+
 
                     if (extractedName == null) {
                         String cleanedName = content.trim();
@@ -164,8 +159,7 @@ public class GuildChatModifier {
 			return Text.literal(starText)
 			.setStyle(Style.EMPTY
 					.withColor(Formatting.WHITE)
-					.withFont(Identifier.of("tbgm", "decorators"))
-			);
+					.withFont(new StyleSpriteSource.Font(Identifier.of("tbgm:decorators"))));
         } else if (index == 2) {
             return createStyledPillText(rankBackgroundText != null ? (starText != null ? "\udaff\udffe" : "\udaff\udffc") + rankBackgroundText: sibling.getString(), sibling.getStyle(), rankColorBackgroundValue);
         } else if (index == 3) {
@@ -187,7 +181,7 @@ public class GuildChatModifier {
     }
 
     private static MutableText createStyledPillText(String text, Style originalStyle, int color) {
-        Style newStyle = originalStyle.withColor(TextColor.fromRgb(color)).withFont(Identifier.of("minecraft", "banner/pill"));
+        Style newStyle = originalStyle.withColor(TextColor.fromRgb(color)).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/pill")));
         return Text.literal(text).setStyle(newStyle);
     }
 
@@ -225,7 +219,7 @@ public class GuildChatModifier {
             for(int j = 0; j < subParts.length; j++) {
                 if (j == 0) {
                     MutableText text = Text.literal(subParts[0]);
-                    Style style = Style.EMPTY.withFont(Identifier.of("minecraft", "chat/prefix"));
+                    Style style = Style.EMPTY.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:chat/prefix")));
                     text.setStyle(style);
 
                     base.add(text);
@@ -250,10 +244,9 @@ public class GuildChatModifier {
 
         Style style = sibling.getStyle();
 
-        Identifier font = style.getFont();
-        if (font != null) {
-            String fontString = font.toString();
-            if ("minecraft:chat/prefix".equals(fontString)) {
+        StyleSpriteSource font = style.getFont();
+        if (font instanceof StyleSpriteSource.Font(Identifier id)) {
+            if ("minecraft:chat/prefix".equals(id.toString())) {
                 return false;
             }
         }
