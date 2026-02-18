@@ -52,7 +52,7 @@ public class HelpCommand extends AbstractClientCommand {
 
     private void sendMessage(Text message, boolean useFlag) {
         MutableText prefix = Text.literal((useFlag ? DiscordBridge.GUILD_CHAT_PREFIX_FLAG : DiscordBridge.GUILD_CHAT_PREFIX_FLAGPOLE) + " ")
-                .setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
+                .setStyle(Style.EMPTY.withColor(SUBTITLE_COLOR).withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:chat/prefix"))));
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(prefix.append(message));
     }
 

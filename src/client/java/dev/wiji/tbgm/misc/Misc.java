@@ -68,7 +68,7 @@ public class Misc {
 		MutableText bodyComponent = Text.literal(" " + message)
 				.setStyle(Style.EMPTY
 							.withColor(color)
-							.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:banner/default"))));
+							.withFont(new StyleSpriteSource.Font(Identifier.of("minecraft:default"))));
 
 		MutableText finalMessage = guildAlertComponent
 				.append(guildAlertForegroundComponent)
