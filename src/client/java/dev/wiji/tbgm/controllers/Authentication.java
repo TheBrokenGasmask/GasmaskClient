@@ -159,7 +159,7 @@ public class Authentication {
 		}
 
 		try {
-			MinecraftClient.getInstance().getSessionService().joinServer(selectedProfile, accessToken, newToken);
+			MinecraftClient.getInstance().getApiServices().sessionService().joinServer(selectedProfile, accessToken, newToken);
 		} catch(AuthenticationException e) {
 			MinecraftClient mc = MinecraftClient.getInstance();
 			if(mc.player != null) {

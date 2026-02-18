@@ -1,10 +1,13 @@
 package dev.wiji.tbgm.mixin.client;
 
+import com.wynntils.mc.extension.EntityRenderStateExtension;
 import dev.wiji.tbgm.badge.BadgeManager;
 import dev.wiji.tbgm.controllers.PlayerManager;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.command.RenderCommandQueue;
+import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,43 +21,27 @@ import java.util.UUID;
 
 @Mixin(targets = "com.wynntils.utils.render.RenderUtils", remap = false)
 public class RenderUtilsMixin {
-    
+
     // Store context for the current render call
     @Unique
-    private static Entity currentEntity;
+    private static EntityRenderState currentEntityState;
     @Unique
-    private static int currentUOffset;
+    private static float currentUOffset;
     @Unique
-    private static int currentVOffset;
-    
-    @Inject(method = "renderProfessionBadge", at = @At("HEAD"))
+    private static float currentVOffset;
+
+    @Inject(method = "renderLeaderboardBadge", at = @At("HEAD"))
     private static void captureRenderContext(
-            MatrixStack matrices,
-            EntityRenderDispatcher dispatcher,
-            Entity entity,
-            Identifier texture,
-            float width,
-            float height,
-            int uOffset,
-            int vOffset,
-            int u,
-            int v,
-            int textureWidth,
-            int textureHeight,
-            float customOffset,
-            float horizontalShift,
-            float verticalShift,
-            CallbackInfo ci) {
-        
-        // Store context for ModifyVariable
-        currentEntity = entity;
+            MatrixStack poseStack, RenderCommandQueue collector, EntityRenderState entityState, CameraRenderState cameraState, Identifier texture, float width, float height, float uOffset, float vOffset, float u, float v, float textureWidth, float textureHeight, float customOffset, float horizontalShift, float verticalShift, CallbackInfo ci) {
+
+        currentEntityState = entityState;
         currentUOffset = uOffset;
         currentVOffset = vOffset;
     }
-    
-    @ModifyVariable(method = "renderProfessionBadge", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+
+    @ModifyVariable(method = "renderLeaderboardBadge", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private static Identifier modifyTexture(Identifier originalTexture) {
-        if (currentEntity instanceof PlayerEntity player) {
+        if (currentEntityState != null && ((EntityRenderStateExtension) currentEntityState).getEntity() instanceof PlayerEntity player) {
 
             String name = player.getName().getString();
 
@@ -62,11 +49,11 @@ public class RenderUtilsMixin {
             if (info == null) return originalTexture;
 
             UUID playerUuid = info.getUuid();
-            int customColor = BadgeManager.getBadgeColor(playerUuid, currentUOffset, currentVOffset);
-            
+            int customColor = BadgeManager.getBadgeColor(playerUuid, (int) currentUOffset, (int) currentVOffset);
+
             if (customColor != 0) return Identifier.of("tbgm", "textures/badges.png");
         }
-        
+
         return originalTexture;
     }
 }

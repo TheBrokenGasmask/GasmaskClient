@@ -3,9 +3,11 @@ package dev.wiji.tbgm.weights;
 import com.wynntils.utils.wynn.ColorScaleUtils;
 import com.wynntils.features.tooltips.ItemStatInfoFeature;
 import dev.wiji.tbgm.controllers.Config;
+import net.minecraft.client.font.Font;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
+import net.minecraft.text.StyleSpriteSource;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
@@ -101,7 +103,7 @@ public class WeightedRollSummary {
                     .append(getSourceIndicator(line.source()))
                     .append(Text.literal(" "+line.label()).setStyle(Style.EMPTY
                             .withColor(Formatting.GRAY)
-                            .withFont(Identifier.of("minecraft", "default"))))
+                            .withFont(new StyleSpriteSource.Font(Identifier.of("minecraft", "default")))))
                     .append(pct);
 
             out.add(lineText);
@@ -119,13 +121,13 @@ public class WeightedRollSummary {
                 return Text.literal(prefix)
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.WHITE)
-                                .withFont(Identifier.of("tbgm", "weight")));
+                                .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm", "weight"))));
             } else {
                 prefix = "\uEff3";
                 return Text.literal(prefix)
                         .setStyle(Style.EMPTY
                                 .withColor(0x1CB7FF)
-                                .withFont(Identifier.of("tbgm", "weight")));
+                                .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm", "weight"))));
             }
 
         } else if ("Wynnpool".equals(source)) {
@@ -136,13 +138,13 @@ public class WeightedRollSummary {
                 return Text.literal(prefix)
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.WHITE)
-                                .withFont(Identifier.of("tbgm", "weight")));
+                                .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm", "weight"))));
             } else {
                 prefix = "\uEff3";
                 return Text.literal(prefix)
                         .setStyle(Style.EMPTY
                                 .withColor(0xFF9900)
-                                .withFont(Identifier.of("tbgm", "weight")));
+                                .withFont(new StyleSpriteSource.Font(Identifier.of("tbgm", "weight"))));
             }
         }
 
