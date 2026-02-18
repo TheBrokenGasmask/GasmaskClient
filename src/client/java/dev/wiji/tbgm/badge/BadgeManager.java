@@ -19,7 +19,7 @@ public class BadgeManager {
     static {
         try {
             // Access leaderboard field using Yarn mappings
-            leaderboardField = LeaderboardService.class.getDeclaredField("leaderboard");
+            leaderboardField = LeaderboardService.class.getDeclaredField("playerLeaderboards");
             leaderboardField.setAccessible(true);
             initialized = true;
         } catch (Exception e) {
