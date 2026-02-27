@@ -1,7 +1,6 @@
 package dev.wiji.tbgm.mixin.client;
 
 import com.wynntils.core.text.StyledText;
-import com.wynntils.handlers.chat.type.MessageType;
 import com.wynntils.handlers.chat.type.RecipientType;
 import dev.wiji.tbgm.controllers.DiscordBridge;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,13 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MatchPatternMixin {
 
     @Inject(
-            method = "matchPattern(Lcom/wynntils/core/text/StyledText;Lcom/wynntils/handlers/chat/type/MessageType;)Z",
+            method = "matchPattern(Lcom/wynntils/core/text/StyledText;)Z",
             at = @At("HEAD"),
             cancellable = true,
             remap = false
     )
-    private void onMatchPattern(StyledText msg, MessageType messageType, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object)this == RecipientType.GUILD && messageType == MessageType.FOREGROUND) {
+    private void onMatchPattern(StyledText msg, CallbackInfoReturnable<Boolean> cir) {
+        if ((Object)this == RecipientType.GUILD) {
             String text = null;
             try {
                 text = (String) StyledText.class.getMethod("getString").invoke(msg);
