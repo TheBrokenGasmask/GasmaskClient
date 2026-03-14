@@ -74,7 +74,7 @@ public class DiscordBridge {
 
                     if (style.getHoverEvent() instanceof HoverEvent.ShowText(Text value)) {
                         String hoverString = value.getString();
-                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real name is (.*)");
+                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real username is (.*)");
                         Matcher hoverMatcher = hoverPattern.matcher(hoverString);
                         if (hoverMatcher.find()) {
                             extractedName = hoverMatcher.group(2);
