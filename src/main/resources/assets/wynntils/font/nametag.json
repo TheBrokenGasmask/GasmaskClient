@@ -32,7 +32,7 @@
       "chars": [
         "\uE103"
       ],
-      "file": "tbgm:font/captain_logo.png",
+      "file": "tbgm:font/war_captain_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -41,7 +41,7 @@
       "chars": [
         "\uE104"
       ],
-      "file": "tbgm:font/commander_logo.png",
+      "file": "tbgm:font/raid_captain_logo.png",
       "height": 8,
       "type": "bitmap"
     },
@@ -50,7 +50,7 @@
       "chars": [
         "\uE105"
       ],
-      "file": "tbgm:font/officer_logo.png",
+      "file": "tbgm:font/commander_logo.png",
       "height": 8,
       "type": "bitmap"
     },
