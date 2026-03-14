@@ -3,12 +3,6 @@ package dev.wiji.tbgm.enums;
 import java.util.Optional;
 
 public enum Rank {
-    OWNER("owner",
-            makeBackgroundText("owner"),
-            makeForegroundText("owner"),
-            0x00FF6D,
-            0x32FF84, 6),
-
     CHIEF("chief",
             makeBackgroundText("chief"),
             makeForegroundText("chief"),
@@ -21,9 +15,9 @@ public enum Rank {
             0xFF7B00,
             0xFF8B26, 4),
 
-    CAPTAIN("captain",
-            makeBackgroundText("captain"),
-            makeForegroundText("captain"),
+    WAR_CAPTAIN("war captain",
+            makeBackgroundText("war captain"),
+            makeForegroundText("war captain"),
             0xFFD704,
             0xFFDB2B, 3),
 
@@ -39,14 +33,14 @@ public enum Rank {
             0x2197FF,
             0x47A9FF, 1),
 
-    OFFICER("officer",
-            makeBackgroundText("officer"),
-            makeForegroundText("officer"),
-            0xFF42FB,
-            0xFF6BFC, -1),
     COMMANDER("commander",
             makeBackgroundText("commander"),
             makeForegroundText("commander"),
+            0xFF42FB,
+            0xFF6BFC, -1),
+    RAID_CAPTAIN("raid captain",
+            makeBackgroundText("raid captain"),
+            makeForegroundText("raid captain"),
             0x9D55D4,
             0xAD80CF, -1),
     ADVISOR("advisor",
@@ -65,7 +59,7 @@ public enum Rank {
             makeBackgroundText("tbgm"),
             makeForegroundText("tbgm"),
             0xf70a0e,
-            0xfc3d40, -1);
+            0xfc3d40, 6);
 
     private final String rankPlainText;
     private final String backgroundText;
