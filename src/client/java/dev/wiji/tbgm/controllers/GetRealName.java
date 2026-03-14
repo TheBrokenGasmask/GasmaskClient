@@ -33,7 +33,7 @@ public class GetRealName {
             HoverEvent hover = message.getStyle().getHoverEvent();
             if (hover == null) return;
             if (hover.getValue(hover.getAction()) instanceof Text hoverText) {
-                final String regex = "(.*?)'s? real name|username is (.*)";
+                final String regex = "(.*?)'s? real (?:username|name) is (.*)";
                 Matcher matcher = Pattern.compile(regex, Pattern.MULTILINE).matcher(hoverText.getString());
                 if (!matcher.matches()) return;
                 String realName = matcher.group(2);

@@ -80,7 +80,7 @@ public class GuildChatModifier {
                         Object hoverValue = style.getHoverEvent().getValue(style.getHoverEvent().getAction());
                         if (hoverValue instanceof Text hoverText) {
                             String hoverString = hoverText.getString();
-                            Pattern hoverPattern = Pattern.compile("(.*?)'s? real name|username is (.*)");
+                            Pattern hoverPattern = Pattern.compile("(.*?)'s? real (?:username|name) is (.*)");
                             Matcher hoverMatcher = hoverPattern.matcher(hoverString);
                             if (hoverMatcher.find()) extractedName = hoverMatcher.group(2);
 
