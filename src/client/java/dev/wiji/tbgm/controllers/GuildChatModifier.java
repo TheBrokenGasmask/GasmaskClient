@@ -75,15 +75,18 @@ public class GuildChatModifier {
 
                     if (style.getHoverEvent() instanceof HoverEvent.ShowText(Text value)) {
                         String hoverString = value.getString();
-                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real username is (.*)");
+                        Pattern hoverPattern = Pattern.compile("(.*?)'s? real (?:username|name) is (.*)");
                         Matcher hoverMatcher = hoverPattern.matcher(hoverString);
                         if (hoverMatcher.find()) extractedName = hoverMatcher.group(2);
+                        System.out.println("HOVER STRING: " + hoverString);
 
                         Pattern nicknamePattern = Pattern.compile("^(.*?)'?s nickname is (.*)$");
                         Matcher nicknameMatcher = nicknamePattern.matcher(hoverString);
                         if (nicknameMatcher.find()) extractedName = nicknameMatcher.group(1);
                     }
 
+
+                    System.out.println("REAL NAME: " + extractedName);
 
                     if (extractedName == null) {
                         String cleanedName = content.trim();
