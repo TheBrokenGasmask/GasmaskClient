@@ -44,7 +44,7 @@ public class GuildChatModifier {
         if (username == null) return originalMessage;
 
         Pair<Rank, Boolean> customRank = isCustomRank(username);
-        if (customRank != null) return modifyCustomRankChat(originalMessage, customRank);
+        if (customRank != null && customRank.getLeft() != null) return modifyCustomRankChat(originalMessage, customRank);
 
         String rankText = originalMessage.getSiblings().get(2).getString();
 

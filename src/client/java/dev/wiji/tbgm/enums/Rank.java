@@ -138,11 +138,18 @@ public enum Rank {
     public static String makeBackgroundText(String word) {
         StringBuilder background = new StringBuilder();
 
-        // Pixel offset is 6 per character (by default), except for 'i' which is 4 pixels + 2 pixels base
+        // Pixel offset is 6 per character (by default), except for 'i' which is 4 pixels
+        // Base offset is 2 pixels
         int pixelOffset = 2;
 
         for(char c : word.toCharArray()) {
-            pixelOffset += (c == 'i' || c == 'I' ? 4 : 6);
+            if (c == ' ') {
+                pixelOffset += 4;  // Space is 4 pixels
+            } else if (c == 'i' || c == 'I') {
+                pixelOffset += 4;  // 'i' is 4 pixels
+            } else {
+                pixelOffset += 6;  // Other letters are 6 pixels
+            }
         }
 
         // Ensure the minimum offset is used for single/short words to prevent errors
@@ -159,6 +166,9 @@ public enum Rank {
                 // Letter code \uE030 to \uE049 (for 'a' to 'z')
                 int code = 0xE030 + (Character.toLowerCase(c) - 'a');
                 background.append((char) code).append('\uDAFF').append('\uDFFF');
+            } else if (c == ' ') {
+                // Space character: use regular space (4px advance to match foreground)
+                background.append(' ');
             } else {
                 // fallback for non-letter chars: \uE03F + \uDAFF\uDFFF
                 background.append('\uE03F').append('\uDAFF').append('\uDFFF');
@@ -186,6 +196,9 @@ public enum Rank {
                 // Letter code \uE000 to \uE019 (for 'a' to 'z')
                 int code = 0xE000 + (Character.toLowerCase(c) - 'a');
                 foreground.append((char) code);
+            } else if (c == ' ') {
+                // Space character: use regular space
+                foreground.append(' ');
             } else {
                 // fallback for non-letter chars: \uE00F
                 foreground.append('\uE00F');

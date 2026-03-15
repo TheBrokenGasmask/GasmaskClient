@@ -16,11 +16,7 @@ public class ChatMixin {
 
     @Inject(method = "onGameMessage", at = @At("HEAD"))
     private void onGameMessagePacket(GameMessageS2CPacket packet, CallbackInfo ci) {
-
         if (packet.overlay()) return;
-
-        String threadName = Thread.currentThread().getName();
-        if (!threadName.startsWith("Netty Client IO")) return;
 
         Text message = packet.content();
 
