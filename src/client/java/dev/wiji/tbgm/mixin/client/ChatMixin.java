@@ -19,9 +19,6 @@ public class ChatMixin {
 
         if (packet.overlay()) return;
 
-        String threadName = Thread.currentThread().getName();
-        if (!threadName.startsWith("Netty Client IO")) return;
-
         Text message = packet.content();
 
         RaidReport.parseChatMessage(message);
