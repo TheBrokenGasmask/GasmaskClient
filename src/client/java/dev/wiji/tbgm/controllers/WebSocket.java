@@ -30,15 +30,26 @@ public class WebSocket {
     private static final int RECONNECT_DELAY_MS = 2500;
     private static final int HEARTBEAT_INTERVAL_MS = 25000;
     private static final int HEARTBEAT_TIMEOUT_MS = 40000;
+    private static final int MESSAGE_RECEIVE_TIMEOUT_MS = 60000; // Force reconnect if no messages for 60s
 
     private volatile int reconnectAttempts = 0;
     private volatile long lastHeartbeatSent = 0;
     private volatile long lastHeartbeatReceived = 0;
+    private volatile long lastMessageReceived = 0; // Track ANY message received
     private volatile ScheduledFuture<?> heartbeatTask;
 
-    private final ScheduledExecutorService scheduler =
+    // Separate executor for connection operations to prevent blocking heartbeats
+    private final ScheduledExecutorService connectionScheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
-                Thread t = new Thread(r, "TBGM-Websocket");
+                Thread t = new Thread(r, "TBGM-Connection");
+                t.setDaemon(true);
+                return t;
+            });
+
+    // Dedicated executor for heartbeat operations - must never be blocked
+    private final ScheduledExecutorService heartbeatScheduler =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread t = new Thread(r, "TBGM-Heartbeat");
                 t.setDaemon(true);
                 return t;
             });
@@ -110,11 +121,11 @@ public class WebSocket {
             }
 
             return currentToken;
-        }, scheduler).thenCompose(token -> CompletableFuture.supplyAsync(() -> {
+        }, connectionScheduler).thenCompose(token -> CompletableFuture.supplyAsync(() -> {
             String wsToken = Authentication.getWebSocketToken();
             if (wsToken == null || wsToken.isEmpty()) throw new IllegalStateException("Failed to get websocket token");
             return wsToken;
-        }, scheduler)).thenCompose(wsToken -> attemptWebSocketConnection(cf, wsToken)).exceptionally(ex -> {
+        }, connectionScheduler)).thenCompose(wsToken -> attemptWebSocketConnection(cf, wsToken)).exceptionally(ex -> {
             connectFutureRef.set(null);
             cf.completeExceptionally(ex);
             return null;
@@ -176,7 +187,7 @@ public class WebSocket {
     private void startHeartbeat() {
         stopHeartbeat();
 
-        heartbeatTask = scheduler.scheduleAtFixedRate(() -> {
+        heartbeatTask = heartbeatScheduler.scheduleAtFixedRate(() -> {
             if (isConnected.get() && webSocket != null && !webSocket.isOutputClosed()) {
                 sendHeartbeat();
                 checkHeartbeatTimeout();
@@ -196,22 +207,43 @@ public class WebSocket {
             JsonObject heartbeat = new JsonObject();
             heartbeat.addProperty("type", "heartbeat");
             heartbeat.addProperty("timestamp", lastHeartbeatSent);
-            //System.out.println("Sending heartbeat at " + lastHeartbeatSent);
             if (webSocket != null && !webSocket.isOutputClosed()) {
-                webSocket.sendText(heartbeat.toString(), true);
+                webSocket.sendText(heartbeat.toString(), true)
+                        .exceptionally(ex -> {
+                            System.err.println("Heartbeat send failed: " + ex.getMessage());
+                            handleConnectionLoss();
+                            return null;
+                        });
+            } else {
+                System.err.println("Cannot send heartbeat: WebSocket is closed or null");
+                handleConnectionLoss();
             }
         } catch (Exception e) {
+            System.err.println("Exception in sendHeartbeat: " + e.getMessage());
             handleConnectionLoss();
         }
     }
 
     private void checkHeartbeatTimeout() {
         long now = System.currentTimeMillis();
+
         if (lastHeartbeatSent > 0 && lastHeartbeatReceived > 0) {
             long timeSinceLastResponse = now - lastHeartbeatReceived;
             long timeSinceLastSent = now - lastHeartbeatSent;
-            //System.out.println("Heartbeat check: sent " + timeSinceLastSent + "ms ago, received " + timeSinceLastResponse + "ms ago");
             if (timeSinceLastSent < HEARTBEAT_TIMEOUT_MS && timeSinceLastResponse > HEARTBEAT_TIMEOUT_MS) {
+                System.err.println("Heartbeat timeout detected: no heartbeat response for " + timeSinceLastResponse + "ms");
+                handleConnectionLoss();
+                return;
+            }
+        }
+
+        // Check 2: ZOMBIE CONNECTION DETECTION - No messages of any kind received
+        // If we haven't received ANY message (heartbeat or data) for MESSAGE_RECEIVE_TIMEOUT_MS,
+        // the connection is likely dead even if sends appear to succeed
+        if (lastMessageReceived > 0) {
+            long timeSinceAnyMessage = now - lastMessageReceived;
+            if (timeSinceAnyMessage > MESSAGE_RECEIVE_TIMEOUT_MS) {
+                System.err.println("Zombie connection detected: no messages received for " + timeSinceAnyMessage + "ms");
                 handleConnectionLoss();
             }
         }
@@ -236,7 +268,7 @@ public class WebSocket {
         System.out.println("Scheduling reconnect attempt " + (reconnectAttempts + 1) + " in " + RECONNECT_DELAY_MS + "ms");
         reconnectAttempts++;
 
-        scheduler.schedule(() -> {
+        connectionScheduler.schedule(() -> {
             reconnectScheduled.set(false);
             if (shouldReconnect.get() && !isConnected.get()) {
                 connectSingleFlight();
@@ -253,7 +285,7 @@ public class WebSocket {
 
         reconnectAttempts++;
 
-        scheduler.schedule(() -> {
+        connectionScheduler.schedule(() -> {
             reconnectScheduled.set(false);
             if (shouldReconnect.get() && !isConnected.get()) {
                 Authentication.invalidateToken();
@@ -299,7 +331,9 @@ public class WebSocket {
         public void onOpen(java.net.http.WebSocket webSocket) {
             isConnected.set(true);
             System.out.println("WebSocket connection established to " + getWebSocketUrl());
-            lastHeartbeatReceived = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
+            lastHeartbeatReceived = now;
+            lastMessageReceived = now; // Initialize message receive tracking
             reconnectAttempts = 0;
             Listener.super.onOpen(webSocket);
         }
@@ -307,13 +341,19 @@ public class WebSocket {
         @Override
         public CompletionStage<?> onText(java.net.http.WebSocket webSocket, CharSequence data, boolean last) {
             try {
+                // Update message receive timestamp for ANY message (critical for zombie detection)
+                long now = System.currentTimeMillis();
+                lastMessageReceived = now;
+
                 JsonObject json = JsonParser.parseString(data.toString()).getAsJsonObject();
                 if (json.has("type") && "heartbeat_response".equals(json.get("type").getAsString())) {
-                    lastHeartbeatReceived = System.currentTimeMillis();
+                    lastHeartbeatReceived = now;
                 } else {
                     processIncomingMessage(data.toString());
                 }
             } catch (Exception e) {
+                // Even if parsing fails, we still received a message
+                lastMessageReceived = System.currentTimeMillis();
                 processIncomingMessage(data.toString());
             }
 
@@ -452,7 +492,7 @@ public class WebSocket {
     }
 
     public ScheduledExecutorService getScheduler() {
-        return scheduler;
+        return connectionScheduler;
     }
 
     public static class MessagePacket {
