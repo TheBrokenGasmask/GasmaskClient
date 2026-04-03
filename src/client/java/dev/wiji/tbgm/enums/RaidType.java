@@ -5,6 +5,7 @@ public enum RaidType {
 	NEXUS_OF_LIGHT(1, "Orphion's Nexus of Light"),
 	THE_CANYON_COLOSSUS(2, "The Canyon Colossus"),
 	THE_NAMELESS_ANOMALY(3, "The Nameless Anomaly"),
+	THE_WARTORN_PALACE(4, "The Wartorn Palace")
 	;
 
 	public final int id;

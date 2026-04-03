@@ -20,6 +20,11 @@ public enum CustomBadge {
     NOTG_TOP_2("NOTG Top 2", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.SILVER),
     NOTG_TOP_3("NOTG Top 3", 0xFFFFFF, LeaderboardType.NOG_COMPLETION, BaseType.BRONZE),
 
+    //TODO: Implement once Wynntils adds proper WTP badges
+//    WTP_TOP_1("WTP Top 1", 0xFFFFFF, LeaderboardType.WTP_COMPLETION, BaseType.GOLD),
+//    WTP_TOP_2("WTP Top 2", 0xFFFFFF, LeaderboardType.WTP_COMPLETION, BaseType.SILVER),
+//    WTP_TOP_3("WTP Top 3", 0xFFFFFF, LeaderboardType.WTP_COMPLETION, BaseType.BRONZE),
+
     ALL_TOP_1("All Top 1", 0xFFFFFF, LeaderboardType.TNA_SCORE, BaseType.GOLD),
     ALL_TOP_2("All Top 2", 0xFFFFFF, LeaderboardType.TCC_SCORE, BaseType.GOLD),
     ALL_TOP_3("All Top 3", 0xFFFFFF, LeaderboardType.NOL_SCORE, BaseType.GOLD)
