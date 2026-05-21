@@ -31,6 +31,7 @@ public class WebSocket {
     private static final int HEARTBEAT_INTERVAL_MS = 25000;
     private static final int HEARTBEAT_TIMEOUT_MS = 40000;
     private static final int MESSAGE_RECEIVE_TIMEOUT_MS = 60000; // Force reconnect if no messages for 60s
+    private static final int CONNECTION_TIMEOUT_MS = 15000; // Timeout for initial WebSocket connection attempt
 
     private volatile int reconnectAttempts = 0;
     private volatile long lastHeartbeatSent = 0;
@@ -147,10 +148,13 @@ public class WebSocket {
             httpClient.newWebSocketBuilder()
                     .header("token", authToken)
                     .buildAsync(wsUri, new WebSocketListener())
+                    .orTimeout(CONNECTION_TIMEOUT_MS, TimeUnit.MILLISECONDS)
                     .whenComplete((ws, ex) -> {
                         if (ex != null) {
                             connectFutureRef.set(null);
                             isConnected.set(false);
+
+                            System.err.println("WebSocket connection failed: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
 
                             if (isAuthenticationError(ex)) {
                                 Authentication.invalidateToken();

@@ -362,7 +362,13 @@ public class Authentication {
 								WS_CONNECT_FUTURE.compareAndSet(cf, null);
 								var mc = MinecraftClient.getInstance();
 								if (mc.player != null) {
-									Misc.sendTbgmErrorMessage("Failed to connect websocket.");
+									String errorMsg = "Failed to connect websocket";
+									if (ex.getCause() instanceof java.util.concurrent.TimeoutException) {
+										errorMsg += " (connection timed out)";
+									} else if (ex.getMessage() != null && !ex.getMessage().isEmpty()) {
+										errorMsg += ": " + ex.getMessage();
+									}
+									Misc.sendTbgmErrorMessage(errorMsg);
 								}
 								cf.completeExceptionally(ex);
 							} else {
