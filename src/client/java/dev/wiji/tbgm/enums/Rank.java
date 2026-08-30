@@ -59,7 +59,21 @@ public enum Rank {
             makeBackgroundText("tbgm"),
             makeForegroundText("tbgm"),
             0xf70a0e,
-            0xfc3d40, 6);
+            0xfc3d40, 6),
+
+    // In-game "Captain" with no War/Raid Captain Discord role; shares Raid Captain's colors
+    CAPTAIN("captain",
+            makeBackgroundText("captain"),
+            makeForegroundText("captain"),
+            0x9D55D4,
+            0xAD80CF, -1),
+
+    // In-game "Owner" with no matching Discord role; shares Council's colors
+    OWNER("owner",
+            makeBackgroundText("owner"),
+            makeForegroundText("owner"),
+            0x28E299,
+            0x4AE0A4, -1);
 
     private final String rankPlainText;
     private final String backgroundText;

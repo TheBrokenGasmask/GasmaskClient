@@ -541,10 +541,10 @@ public class WebSocket {
 
             public RaidData(Raid raid) {
                 this.raid = String.valueOf(raid.raidType.id);
-                this.player1 = raid.players[0];
-                this.player2 = raid.players[1];
-                this.player3 = raid.players[2];
-                this.player4 = raid.players[3];
+                this.player1 = raid.players.length > 0 ? raid.players[0] : null;
+                this.player2 = raid.players.length > 1 ? raid.players[1] : null;
+                this.player3 = raid.players.length > 2 ? raid.players[2] : null;
+                this.player4 = raid.players.length > 3 ? raid.players[3] : null;
                 this.reporter = raid.reporter.toString();
                 this.seasonRating = raid.seasonRating;
                 this.guildXP = raid.guildXP;

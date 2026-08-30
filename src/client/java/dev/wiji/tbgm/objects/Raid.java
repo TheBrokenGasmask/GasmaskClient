@@ -20,6 +20,6 @@ public class Raid {
 		this.guildXP = guildXP;
 		this.durationSeconds = durationSeconds;
 
-		if(players.length != 4) throw new RuntimeException("Invalid number of players in raid! Expected 4, got " + players.length);
+		if(players.length < 1 || players.length > 4) throw new RuntimeException("Invalid number of players in raid! Expected 1-4, got " + players.length);
 	}
 }

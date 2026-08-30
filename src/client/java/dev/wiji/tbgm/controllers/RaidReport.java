@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -20,61 +21,66 @@ public class RaidReport {
 	private static long completionTimeTimestamp = 0;
 	private static final long EXPIRATION_MS = 5000;
 
+	// <players> finished <raid> and claimed <rewards>
+	// <players> is a natural-language list of 1-4 names: "A", "A and B", "A, B, and C", "A, B, C, and D".
+	// <rewards> is a natural-language list where any of Aspects / Emeralds / Guild Experience /
+	// Seasonal Rating may be absent.
+	public static final Pattern COMPLETION_PATTERN =
+			Pattern.compile("(.+?) finished (.+?) and claimed (.+)");
+	private static final Pattern NAME_LIST_SPLIT_PATTERN =
+			Pattern.compile(",\\s*and\\s+|\\s+and\\s+|,\\s*");
+	private static final Pattern GUILD_XP_PATTERN =
+			Pattern.compile("([\\d,.]+[kKmM]?) Guild Experience");
+	private static final Pattern SEASONAL_RATING_PATTERN =
+			Pattern.compile("\\+(\\d+) Seasonal Rating");
+
 	public static void parseChatMessage(Text message) {
 		parseCompletionTime(message);
 
 		String unformattedMessage = Misc.getUnformattedString(message.getString());
-		Matcher matcher = Pattern.compile("([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), and " +
-				"([A-Za-z0-9_ ]+?) finished (.+?) and claimed (\\d+)x Aspects, (\\d+)x Emeralds, .(.+?m)" +
-				" Guild Experience, and \\+(\\d+) Seasonal Rating", Pattern.MULTILINE).matcher(unformattedMessage);
+		Matcher matcher = COMPLETION_PATTERN.matcher(unformattedMessage);
+		if (!matcher.matches()) return;
+
+		RaidType raidType = RaidType.getRaidType(matcher.group(2));
+		if (raidType == null) return;
 
 		HashMap<String, List<String>> nameMap = new HashMap<>();
 		GetRealName.createRealNameMap(message, nameMap);
 
-		if (!matcher.matches()) {
-			matcher = Pattern.compile("([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), ([A-Za-z0-9_ ]+?), and " +
-					"([A-Za-z0-9_ ]+?) finished (.+?) and claimed (\\d+)x Aspects, (\\d+)x Emeralds, and .(.+?m)" +
-					" Guild Experience", Pattern.MULTILINE).matcher(unformattedMessage);
-		};
+		List<String> players = new ArrayList<>();
+		for (String rawName : NAME_LIST_SPLIT_PATTERN.split(matcher.group(1))) {
+			String name = rawName.trim();
+			if (name.isEmpty()) continue;
+			if (nameMap.containsKey(name)) name = nameMap.get(name).removeLast();
+			players.add(name);
+		}
+		if (players.isEmpty() || players.size() > 4) return;
 
-		if (!matcher.matches()) return;
+		String rewards = matcher.group(3);
 
-		String user1 = matcher.group(1);
-		if (nameMap.containsKey(user1)) user1 = nameMap.get(user1).removeLast();
+		int guildXP = 0;
+		Matcher xpMatcher = GUILD_XP_PATTERN.matcher(rewards);
+		if (xpMatcher.find()) guildXP = Misc.convertToInt(xpMatcher.group(1));
 
-		String user2 = matcher.group(2);
-		if (nameMap.containsKey(user2)) user2 = nameMap.get(user2).removeLast();
+		int seasonRating = 0;
+		Matcher srMatcher = SEASONAL_RATING_PATTERN.matcher(rewards);
+		if (srMatcher.find()) seasonRating = Integer.parseInt(srMatcher.group(1));
 
-		String user3 = matcher.group(3);
-		if (nameMap.containsKey(user3)) user3 = nameMap.get(user3).removeLast();
-
-		String user4 = matcher.group(4);
-		if (nameMap.containsKey(user4)) user4 = nameMap.get(user4).removeLast();
-
-		String raidString = matcher.group(5);
-		String aspects = matcher.group(6);
-		String emeralds = matcher.group(7);
-		String xp = matcher.group(8);
-		String sr = matcher.groupCount() >= 9 ? matcher.group(9) : "0";
-
-		RaidType raidType = RaidType.getRaidType(raidString);
 		UUID reporterID = MinecraftClient.getInstance().getSession().getUuidOrNull();
 		if (reporterID == null) return;
 
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		if(player == null) return;
 
-		boolean playerInRaid = player.getName().getString().equalsIgnoreCase(user1) ||
-				player.getName().getString().equalsIgnoreCase(user2) ||
-				player.getName().getString().equalsIgnoreCase(user3) ||
-				player.getName().getString().equalsIgnoreCase(user4);
+		String playerName = player.getName().getString();
+		boolean playerInRaid = players.stream().anyMatch(name -> name.equalsIgnoreCase(playerName));
 
 		int completionTime = -1;
 		if (System.currentTimeMillis() - completionTimeTimestamp < EXPIRATION_MS && playerInRaid) {
 			completionTime = lastCompletionTime;
 		}
 
-		Raid raid = new Raid(raidType, new String[]{user1, user2, user3, user4}, reporterID, Integer.parseInt(sr), Misc.convertToInt(xp), completionTime);
+		Raid raid = new Raid(raidType, players.toArray(new String[0]), reporterID, seasonRating, guildXP, completionTime);
 
 		lastCompletionTime = -1;
 		completionTimeTimestamp = 0;
